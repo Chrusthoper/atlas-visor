@@ -19,10 +19,13 @@ Salida:
     build/app.js       (copia de src/app.js)
     build/vendor/      (Cytoscape.js + KaTeX locales, sin internet)
 """
+import hashlib
 import json
 import os
 import shutil
+import sqlite3
 import sys
+from datetime import datetime, timezone
 
 # Rutas: el script vive en <proyecto>/src/generador.py
 DIR_SRC = os.path.dirname(os.path.abspath(__file__))
@@ -32,6 +35,7 @@ RUTA_JSON = os.path.join(DIR_SRC, "atlas_data.json")
 DIR_NOTAS = os.path.join(DIR_SRC, "notas")
 DIR_VENDOR_SRC = os.path.join(DIR_SRC, "vendor")
 DIR_VENDOR_BUILD = os.path.join(DIR_BUILD, "vendor")
+RUTA_DB = os.path.join(DIR_SRC, "backend", "respuestas.db")
 
 # Paleta por categoría (§5.6). Sirve para derivar `color` si falta.
 PALETA_CATEGORIA = {
@@ -337,6 +341,48 @@ PLANTILLA_HTML = """<!DOCTYPE html>
 # ------------------------------------------------------------------
 # Build
 # ------------------------------------------------------------------
+def registrar_snapshot(datos):
+    """
+    Guarda una huella de integridad del contenido en `contenido_versiones`.
+
+    El hash cubre los datos ya normalizados (con color, preguntas y notas
+    adjuntas), de modo que cada build deja un rastro verificable de QUÉ
+    contenido produjo, incluso si el atlas se sirve por API sin Git.
+    """
+    payload = json.dumps(datos, ensure_ascii=False, sort_keys=True)
+    digesto = hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    version = str(datos.get("meta", {}).get("version", "?"))
+    resumen = (
+        str(len(datos.get("conceptos", []))) + " conceptos, "
+        + str(len(datos.get("conexiones", []))) + " conexiones, "
+        + str(len(datos.get("senderos", []))) + " senderos"
+    )
+    momento = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+    os.makedirs(os.path.dirname(RUTA_DB), exist_ok=True)
+    con = sqlite3.connect(RUTA_DB)
+    try:
+        con.execute(
+            "CREATE TABLE IF NOT EXISTS contenido_versiones ("
+            "    id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "    version TEXT NOT NULL,"
+            "    sha256_contenido TEXT NOT NULL,"
+            "    resumen TEXT NOT NULL,"
+            "    creado_en TIMESTAMP NOT NULL"
+            ")"
+        )
+        con.execute(
+            "INSERT INTO contenido_versiones (version, sha256_contenido, resumen, creado_en) "
+            "VALUES (?, ?, ?, ?)",
+            (version, digesto, resumen, momento),
+        )
+        con.commit()
+    finally:
+        con.close()
+
+    print("  snapshot:   v" + version + " sha256:" + digesto[:12] + "… (" + resumen + ")")
+
+
 def generar():
     """Orquesta el proceso completo: cargar, validar, normalizar y escribir."""
     print("Generando el Atlas del Perceptrón v2.0")
@@ -348,6 +394,8 @@ def generar():
     validar(datos)
 
     os.makedirs(DIR_BUILD, exist_ok=True)
+
+    registrar_snapshot(datos)
 
     # Los datos van en un <script type="application/json">: no hace falta
     # escapar comillas, solo evitar que aparezca la secuencia </script>.

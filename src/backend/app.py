@@ -247,6 +247,12 @@ def api_historial_nota(nota_id):
     return jsonify({"historial": modelos.historial_de_nota(nota_id)}), 200
 
 
+@app.get("/api/versiones")
+def api_versiones_contenido():
+    """Snapshots de contenido registrados por el generador en cada build."""
+    return jsonify({"versiones": modelos.listar_versiones_contenido()}), 200
+
+
 @app.post("/api/notas/<int:nota_id>/restaurar")
 def api_restaurar_nota(nota_id):
     """Restaura una versión de una nota. 404/400 según el fallo."""

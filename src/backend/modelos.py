@@ -321,6 +321,37 @@ def historial_de_nota(nota_id):
     ]
 
 
+# ------------------------------------------------------------------
+# Versiones del contenido (snapshot de integridad, escrito por generador.py)
+# ------------------------------------------------------------------
+def listar_versiones_contenido():
+    """Devuelve los snapshots de contenido, más recientes primero."""
+    with conectar() as con:
+        con.execute(
+            "CREATE TABLE IF NOT EXISTS contenido_versiones ("
+            "    id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "    version TEXT NOT NULL,"
+            "    sha256_contenido TEXT NOT NULL,"
+            "    resumen TEXT NOT NULL,"
+            "    creado_en TIMESTAMP NOT NULL"
+            ")"
+        )
+        filas = con.execute(
+            "SELECT id, version, sha256_contenido, resumen, creado_en "
+            "FROM contenido_versiones ORDER BY id DESC"
+        ).fetchall()
+    return [
+        {
+            "id": f["id"],
+            "version": f["version"],
+            "sha256_contenido": f["sha256_contenido"],
+            "resumen": f["resumen"],
+            "creado_en": f["creado_en"],
+        }
+        for f in filas
+    ]
+
+
 def restaurar_nota(nota_id, version):
     """Restaura una versión de una nota; devuelve la nota o None."""
     with conectar() as con:
