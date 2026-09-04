@@ -1,0 +1,10 @@
+# Base de datos de respuestas (datos del usuario, no del proyecto)
+src/backend/respuestas.db
+
+# Salida generada: se reconstruye con `python3 src/generador.py`
+build/
+
+# Python
+__pycache__/
+*.py[cod]
+*.bak

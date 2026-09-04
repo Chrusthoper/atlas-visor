@@ -1,0 +1,2244 @@
+{
+ "meta": {
+  "titulo": "Atlas del Perceptrón",
+  "version": "2.0.0",
+  "autor": "Actividades: Perceptrón y transición a MLP · Construyendo el Algoritmo de un Perceptrón",
+  "paleta": {
+   "componente": "#FFB84D",
+   "operacion": "#61dafb",
+   "proceso": "#69b3a2",
+   "limitacion": "#ff6b6b",
+   "evolucion": "#C9A0FF"
+  }
+ },
+ "capas_globales": [
+  {
+   "id": "visual",
+   "nombre": "Visual",
+   "icono": "👁️"
+  },
+  {
+   "id": "matematica",
+   "nombre": "Matemática",
+   "icono": "📐"
+  },
+  {
+   "id": "pseudocodigo",
+   "nombre": "Pseudocódigo",
+   "icono": "📝"
+  },
+  {
+   "id": "codigo",
+   "nombre": "Código",
+   "icono": "💻"
+  },
+  {
+   "id": "historia",
+   "nombre": "Historia",
+   "icono": "📜"
+  }
+ ],
+ "conceptos": [
+  {
+   "id": "perceptron",
+   "nombre": "Perceptrón",
+   "categoria": "componente",
+   "posicion": {
+    "x": 280,
+    "y": 240
+   },
+   "radio": 58,
+   "capas": {
+    "visual": {
+     "etiqueta": "Perceptrón",
+     "descripcion_corta": "Unidad mínima de clasificación inspirada en la neurona biológica."
+    },
+    "matematica": {
+     "formula": "\\hat{y} = \\phi(z), \\quad z = w^T x + b",
+     "explicacion": "Recibe un vector de entradas, calcula la suma ponderada, la transforma con una función de activación y entrega una clase binaria."
+    },
+    "pseudocodigo": {
+     "linea": "SI z >= 0 ENTONCES ŷ ← 1 SINO ŷ ← 0",
+     "contexto": "Núcleo de la predicción del perceptrón"
+    },
+    "codigo": {
+     "python": "def predecir(x, w, b):\n    z = sum(w[i]*x[i] for i in range(len(x))) + b\n    return 1 if z >= 0 else 0",
+     "lenguaje": "python"
+    },
+    "historia": {
+     "texto": "La neurona artificial nace con McCulloch & Pitts (1943). Frank Rosenblatt formalizó el perceptrón en 1958 como un modelo de aprendizaje supervisado inspirado en la neurona biológica.",
+     "referencia": "McCulloch & Pitts, 1943 · Rosenblatt, 1958"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "I",
+     "numero": 1,
+     "enunciado": "¿Qué es un perceptrón?"
+    },
+    {
+     "pdf": "actividad_percep",
+     "parte": "I",
+     "numero": 2,
+     "enunciado": "¿Por qué puede considerarse al perceptrón como una neurona artificial?"
+    }
+   ],
+   "enlaces": [
+    "entradas",
+    "pesos",
+    "bias",
+    "z",
+    "salida",
+    "clasificador_lineal"
+   ]
+  },
+  {
+   "id": "entradas",
+   "nombre": "Entradas (x)",
+   "categoria": "componente",
+   "posicion": {
+    "x": 150,
+    "y": 400
+   },
+   "radio": 54,
+   "capas": {
+    "visual": {
+     "etiqueta": "Entradas (x)",
+     "descripcion_corta": "Las características o atributos del ejemplo que se quiere clasificar."
+    },
+    "matematica": {
+     "formula": "x = (x_1, x_2, \\dots, x_n)",
+     "explicacion": "Vector de características codificadas como números. Cada x_i es un dato de entrada de la neurona."
+    },
+    "pseudocodigo": {
+     "linea": "recibir el ejemplo x con sus n características",
+     "contexto": "Primera acción del algoritmo"
+    },
+    "codigo": {
+     "python": "x = [2, -1, 3]    # un ejemplo con 3 características"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "I",
+     "numero": 3,
+     "enunciado": "¿Qué representan las entradas? x₁, x₂, …, xₙ"
+    }
+   ],
+   "enlaces": [
+    "z",
+    "ejemplo"
+   ]
+  },
+  {
+   "id": "pesos",
+   "nombre": "Pesos (w)",
+   "categoria": "componente",
+   "posicion": {
+    "x": 150,
+    "y": 610
+   },
+   "radio": 54,
+   "capas": {
+    "visual": {
+     "etiqueta": "Pesos (w)",
+     "descripcion_corta": "La importancia que la neurona le otorga a cada entrada."
+    },
+    "matematica": {
+     "formula": "w = (w_1, w_2, \\dots, w_n)",
+     "explicacion": "Vector de coeficientes que multiplican a cada entrada. Un peso positivo favorece la activación; negativo la inhibe; cercano a cero, casi no influye."
+    },
+    "pseudocodigo": {
+     "linea": "w[i] ← w[i] + η · e · x[i]",
+     "contexto": "Actualización durante el aprendizaje"
+    },
+    "codigo": {
+     "python": "w = [0.4, 0.2, -0.1]  # pesos iniciales"
+    },
+    "historia": {
+     "texto": "En la neurona biológica, la fuerza sináptica determina cuánto influye cada señal. Los pesos artificiales imitan esto: la sinapsis 'pesa' la señal.",
+     "referencia": "Analogía: sinapsis → peso"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "I",
+     "numero": 4,
+     "enunciado": "¿Qué representan los pesos? w₁, w₂, …, wₙ"
+    },
+    {
+     "pdf": "actividad_percep",
+     "parte": "I",
+     "numero": 5,
+     "enunciado": "¿Qué puede significar que un peso sea positivo, negativo o cercano a cero?"
+    }
+   ],
+   "enlaces": [
+    "z",
+    "regla_aprendizaje",
+    "actualizacion_pesos",
+    "parametro"
+   ]
+  },
+  {
+   "id": "bias",
+   "nombre": "Bias / Sesgo (b)",
+   "categoria": "componente",
+   "posicion": {
+    "x": 330,
+    "y": 780
+   },
+   "radio": 52,
+   "capas": {
+    "visual": {
+     "etiqueta": "Bias (b)",
+     "descripcion_corta": "Umbral base que la suma ponderada debe superar para activarse."
+    },
+    "matematica": {
+     "formula": "z = w^T x + b",
+     "explicacion": "Término independiente de la ecuación. Desplaza la frontera de decisión sin cambiar su orientación (la mueve paralela a sí misma)."
+    },
+    "pseudocodigo": {
+     "linea": "b ← b + η · e",
+     "contexto": "Actualización del umbral en cada paso de aprendizaje"
+    },
+    "codigo": {
+     "python": "b = -0.3    # umbral inicial"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "I",
+     "numero": 6,
+     "enunciado": "¿Cuál es la función del bias o sesgo b?"
+    }
+   ],
+   "enlaces": [
+    "z",
+    "actualizacion_bias",
+    "parametro"
+   ]
+  },
+  {
+   "id": "z",
+   "nombre": "Suma ponderada (z)",
+   "categoria": "operacion",
+   "posicion": {
+    "x": 490,
+    "y": 500
+   },
+   "radio": 58,
+   "capas": {
+    "visual": {
+     "etiqueta": "Suma ponderada",
+     "descripcion_corta": "Producto punto entre pesos y entradas, más el sesgo."
+    },
+    "matematica": {
+     "formula": "z = w^T x + b = \\sum_{i=1}^{n} w_i x_i + b",
+     "explicacion": "El 'nivel de activación' bruto de la neurona antes de decidir. w^T x es el producto punto (o producto escalar) entre los pesos y las entradas."
+    },
+    "pseudocodigo": {
+     "linea": "z ← 0\nPARA i ← 1 HASTA n: z ← z + w[i]·x[i]\nz ← z + b",
+     "contexto": "Acumulador de la suma ponderada"
+    },
+    "codigo": {
+     "python": "z = sum(w[i]*x[i] for i in range(len(x))) + b"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "I",
+     "numero": 7,
+     "enunciado": "Explica con tus propias palabras la expresión: z = w^T x + b"
+    },
+    {
+     "pdf": "actividad_percep",
+     "parte": "I",
+     "numero": 8,
+     "enunciado": "¿Qué operación matemática representa w^T x?"
+    }
+   ],
+   "enlaces": [
+    "entradas",
+    "pesos",
+    "bias",
+    "activacion",
+    "frontera"
+   ]
+  },
+  {
+   "id": "activacion",
+   "nombre": "Función de activación (φ)",
+   "categoria": "operacion",
+   "posicion": {
+    "x": 680,
+    "y": 380
+   },
+   "radio": 56,
+   "capas": {
+    "visual": {
+     "etiqueta": "Activación (φ)",
+     "descripcion_corta": "Decide si la neurona 'se dispara'."
+    },
+    "matematica": {
+     "formula": "\\phi(z) = \\begin{cases} 1 & z \\ge 0 \\\\ 0 & z < 0 \\end{cases}",
+     "explicacion": "El perceptrón clásico usa la función escalón (o escalón de Heaviside): devuelve 1 si z ≥ 0 y 0 si z < 0. Es la única 'decisión' de la neurona."
+    },
+    "pseudocodigo": {
+     "linea": "SI z >= 0 ENTONCES ŷ ← 1 SINO ŷ ← 0",
+     "contexto": "Estructura condicional"
+    },
+    "codigo": {
+     "python": "y_hat = 1 if z >= 0 else 0"
+    },
+    "historia": {
+     "texto": "La función escalón fue propuesta por Heaviside en el siglo XIX para describir circuitos eléctricos; el perceptrón la adoptó como umbral de disparo.",
+     "referencia": "Oliver Heaviside (función escalón)"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "I",
+     "numero": 9,
+     "enunciado": "¿Qué función de activación utiliza normalmente el perceptrón clásico?"
+    }
+   ],
+   "enlaces": [
+    "z",
+    "salida",
+    "prediccion"
+   ]
+  },
+  {
+   "id": "salida",
+   "nombre": "Salida / Clase (ŷ)",
+   "categoria": "operacion",
+   "posicion": {
+    "x": 860,
+    "y": 280
+   },
+   "radio": 52,
+   "capas": {
+    "visual": {
+     "etiqueta": "Salida (ŷ)",
+     "descripcion_corta": "La clase binaria que asigna el perceptrón."
+    },
+    "matematica": {
+     "formula": "\\hat{y} \\in \\{0, 1\\}",
+     "explicacion": "El perceptrón clásico produce una salida binaria (0 o 1); por eso es un clasificador de dos clases."
+    },
+    "pseudocodigo": {
+     "linea": "ŷ ← resultado de la activación",
+     "contexto": "Fin de la fase de predicción"
+    },
+    "codigo": {
+     "python": "y_hat = activacion(z)"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "I",
+     "numero": 10,
+     "enunciado": "¿Qué tipo de salida produce normalmente el perceptrón clásico?"
+    }
+   ],
+   "enlaces": [
+    "activacion",
+    "y_pred",
+    "clasificador_lineal"
+   ]
+  },
+  {
+   "id": "clasificador_lineal",
+   "nombre": "Clasificador Lineal Binario",
+   "categoria": "operacion",
+   "posicion": {
+    "x": 860,
+    "y": 130
+   },
+   "radio": 60,
+   "capas": {
+    "visual": {
+     "etiqueta": "Clasificador,\nlineal binario",
+     "descripcion_corta": "El perceptrón separa dos clases con una frontera recta."
+    },
+    "matematica": {
+     "formula": "\\text{Clase} = \\begin{cases} 1 & w^T x + b \\ge 0 \\\\ 0 & w^T x + b < 0 \\end{cases}",
+     "explicacion": "Lineal: su frontera de decisión es una recta (2D), un plano (3D) o un hiperplano (nD). Binario: solo asigna una de dos etiquetas: 0 o 1."
+    },
+    "pseudocodigo": {
+     "linea": "SI w^T·x + b >= 0 ENTONCES clase ← 1 SINO clase ← 0",
+     "contexto": "Criterio completo de clasificación"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "I",
+     "numero": 11,
+     "enunciado": "¿Por qué se dice que el perceptrón es un Clasificador Lineal Binario?"
+    }
+   ],
+   "enlaces": [
+    "salida",
+    "frontera",
+    "linealidad"
+   ]
+  },
+  {
+   "id": "frontera",
+   "nombre": "Frontera de decisión",
+   "categoria": "operacion",
+   "posicion": {
+    "x": 1060,
+    "y": 260
+   },
+   "radio": 56,
+   "capas": {
+    "visual": {
+     "etiqueta": "Frontera de decisión",
+     "descripcion_corta": "La 'raya' que separa la clase 0 de la clase 1."
+    },
+    "matematica": {
+     "formula": "w^T x + b = 0",
+     "explicacion": "Geométricamente: en dos dimensiones es una recta; en tres, un plano; en dimensiones mayores, un hiperplano que separa las dos clases."
+    },
+    "pseudocodigo": {
+     "linea": "puntos donde z = 0 definen la frontera",
+     "contexto": "Interpretación geométrica de z = w^T x + b"
+    },
+    "codigo": {
+     "python": "# frontera: w0*x0 + w1*x1 + b = 0 → recta para graficar"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "I",
+     "numero": 12,
+     "enunciado": "¿Qué representa geométricamente w^T x + b = 0 en 2D, 3D y más dimensiones?"
+    }
+   ],
+   "enlaces": [
+    "z",
+    "clasificador_lineal",
+    "actualizacion_pesos",
+    "actualizacion_bias",
+    "linealidad"
+   ]
+  },
+  {
+   "id": "y_real",
+   "nombre": "Etiqueta real (y)",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 880,
+    "y": 620
+   },
+   "radio": 50,
+   "capas": {
+    "visual": {
+     "etiqueta": "Etiqueta real (y)",
+     "descripcion_corta": "La respuesta correcta, conocida solo durante el entrenamiento."
+    },
+    "matematica": {
+     "formula": "y",
+     "explicacion": "Valor verdadero de la clase del ejemplo, presente en el dataset etiquetado. Sirve para medir el error de la predicción ŷ."
+    },
+    "pseudocodigo": {
+     "linea": "y es un dato de entrenamiento; no se calcula.",
+     "contexto": "Entrada supervisada"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "II",
+     "numero": 13,
+     "enunciado": "¿Cuál es la diferencia entre y y ŷ?"
+    }
+   ],
+   "enlaces": [
+    "error",
+    "y_pred",
+    "ejemplo"
+   ]
+  },
+  {
+   "id": "y_pred",
+   "nombre": "Predicción (ŷ)",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 880,
+    "y": 460
+   },
+   "radio": 54,
+   "capas": {
+    "visual": {
+     "etiqueta": "Predicción (ŷ)",
+     "descripcion_corta": "Lo que el modelo cree antes de ver la respuesta."
+    },
+    "matematica": {
+     "formula": "\\hat{y} = \\phi(z)",
+     "explicacion": "Resultado de aplicar la función de activación a la suma ponderada. Es la salida del perceptrón para ese ejemplo."
+    },
+    "pseudocodigo": {
+     "linea": "ŷ ← φ(z)",
+     "contexto": "Fase de predicción"
+    },
+    "codigo": {
+     "python": "y_hat = 1 if z >= 0 else 0"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "II",
+     "numero": 13,
+     "enunciado": "¿Cuál es la diferencia entre y y ŷ?"
+    }
+   ],
+   "enlaces": [
+    "error",
+    "salida",
+    "y_real"
+   ]
+  },
+  {
+   "id": "error",
+   "nombre": "Error (e)",
+   "categoria": "operacion",
+   "posicion": {
+    "x": 1060,
+    "y": 640
+   },
+   "radio": 52,
+   "capas": {
+    "visual": {
+     "etiqueta": "Error (e)",
+     "descripcion_corta": "La diferencia entre lo correcto y lo predicho."
+    },
+    "matematica": {
+     "formula": "e = y - \\hat{y}",
+     "explicacion": "e = 1 → el modelo subestimó (predijo 0, era 1). e = −1 → sobreestimó (predijo 1, era 0). e = 0 → acertó, no hay error."
+    },
+    "pseudocodigo": {
+     "linea": "e ← y - ŷ",
+     "contexto": "Solo puede calcularse después de la predicción"
+    },
+    "codigo": {
+     "python": "e = y - y_hat"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "II",
+     "numero": 14,
+     "enunciado": "El error e = y − ŷ. Explica los casos e = 1, e = −1 y e = 0."
+    }
+   ],
+   "enlaces": [
+    "y_real",
+    "y_pred",
+    "regla_aprendizaje",
+    "entrenamiento"
+   ]
+  },
+  {
+   "id": "regla_aprendizaje",
+   "nombre": "Regla de aprendizaje",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 1240,
+    "y": 790
+   },
+   "radio": 58,
+   "capas": {
+    "visual": {
+     "etiqueta": "Regla de aprendizaje",
+     "descripcion_corta": "La fórmula que corrige los pesos usando el error."
+    },
+    "matematica": {
+     "formula": "w_i \\leftarrow w_i + \\eta \\cdot e \\cdot x_i",
+     "explicacion": "Cada peso se ajusta en la dirección que habría ayudado a acertar: empuja w_i hacia arriba si la entrada x_i debió contribuir más."
+    },
+    "pseudocodigo": {
+     "linea": "PARA i ← 1 HASTA n:\n    w[i] ← w[i] + η·e·x[i]",
+     "contexto": "Actualización tras calcular el error"
+    },
+    "codigo": {
+     "python": "w[i] = w[i] + eta * e * x[i]"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "II",
+     "numero": 15,
+     "enunciado": "Explica con tus propias palabras la regla: wᵢ ← wᵢ + η·e·xᵢ"
+    }
+   ],
+   "enlaces": [
+    "error",
+    "eta",
+    "actualizacion_pesos",
+    "actualizacion_bias"
+   ]
+  },
+  {
+   "id": "eta",
+   "nombre": "Tasa de aprendizaje (η)",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 1140,
+    "y": 990
+   },
+   "radio": 52,
+   "capas": {
+    "visual": {
+     "etiqueta": "Tasa η",
+     "descripcion_corta": "Qué tan grande es el paso al corregir."
+    },
+    "matematica": {
+     "formula": "\\eta",
+     "explicacion": "Controla el tamaño del paso en cada actualización. Demasiado pequeña → aprendizaje lentísimo; demasiado grande → el error oscila o diverge."
+    },
+    "pseudocodigo": {
+     "linea": "η ← valor definido antes de entrenar",
+     "contexto": "Hiperparámetro: no lo aprende el modelo"
+    },
+    "codigo": {
+     "python": "eta = 0.1"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "II",
+     "numero": 16,
+     "enunciado": "¿Qué representa la letra griega η?"
+    },
+    {
+     "pdf": "actividad_percep",
+     "parte": "II",
+     "numero": 17,
+     "enunciado": "¿Qué podría ocurrir si la tasa de aprendizaje es demasiado pequeña?"
+    },
+    {
+     "pdf": "actividad_percep",
+     "parte": "II",
+     "numero": 18,
+     "enunciado": "¿Qué podría ocurrir si la tasa de aprendizaje es demasiado grande?"
+    }
+   ],
+   "enlaces": [
+    "regla_aprendizaje",
+    "hiperparametro"
+   ]
+  },
+  {
+   "id": "actualizacion_pesos",
+   "nombre": "Modificar pesos (Δw)",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 1480,
+    "y": 770
+   },
+   "radio": 58,
+   "capas": {
+    "visual": {
+     "etiqueta": "Δw",
+     "descripcion_corta": "El cambio de pesos que rota la frontera."
+    },
+    "matematica": {
+     "formula": "\\Delta w_i = \\eta e x_i, \\quad w_i \\leftarrow w_i + \\Delta w_i",
+     "explicacion": "Los pesos son los coeficientes del hiperplano: cambiarlos altera la pendiente u orientación de la frontera de decisión."
+    },
+    "pseudocodigo": {
+     "linea": "PARA cada i: w[i] ← w[i] + η·e·x[i]",
+     "contexto": "Bucle interno sobre características"
+    },
+    "codigo": {
+     "python": "for i in range(n):\n    w[i] += eta * e * x[i]"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "II",
+     "numero": 19,
+     "enunciado": "¿Por qué modificar los pesos puede cambiar la orientación de la frontera de decisión?"
+    }
+   ],
+   "enlaces": [
+    "regla_aprendizaje",
+    "pesos",
+    "frontera",
+    "ciclo_caracteristicas"
+   ]
+  },
+  {
+   "id": "actualizacion_bias",
+   "nombre": "Modificar bias (Δb)",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 1480,
+    "y": 960
+   },
+   "radio": 54,
+   "capas": {
+    "visual": {
+     "etiqueta": "Δb",
+     "descripcion_corta": "El cambio del umbral que desplaza la frontera."
+    },
+    "matematica": {
+     "formula": "b \\leftarrow b + \\eta e",
+     "explicacion": "El bias es el término independiente de la ecuación: cambiarlo mueve la recta o el plano paralelamente a sí mismo, sin alterar la inclinación."
+    },
+    "pseudocodigo": {
+     "linea": "b ← b + η·e",
+     "contexto": "Se actualiza una vez por ejemplo (no por característica)"
+    },
+    "codigo": {
+     "python": "b += eta * e"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "II",
+     "numero": 20,
+     "enunciado": "¿Por qué modificar el bias puede desplazar la frontera de decisión?"
+    }
+   ],
+   "enlaces": [
+    "regla_aprendizaje",
+    "bias",
+    "frontera"
+   ]
+  },
+  {
+   "id": "proceso_aprendizaje",
+   "nombre": "Ciclo de aprendizaje",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 1720,
+    "y": 700
+   },
+   "radio": 60,
+   "capas": {
+    "visual": {
+     "etiqueta": "Ciclo de aprendizaje",
+     "descripcion_corta": "Error → Actualización → Nueva frontera."
+    },
+    "matematica": {
+     "formula": "\\text{Error} \\to \\text{Actualización} \\to \\text{Nueva frontera}",
+     "explicacion": "El modelo mide cuánto se equivocó, ajusta pesos y sesgo con esa información, y la nueva ecuación dibuja una frontera ligeramente distinta que clasifica mejor."
+    },
+    "pseudocodigo": {
+     "linea": "calcular e → actualizar w y b → repetir",
+     "contexto": "El latido del entrenamiento"
+    },
+    "codigo": {
+     "python": "for xi, yi in zip(X, y):\n    y_hat = predecir(xi)\n    e = yi - y_hat\n    if e != 0:\n        actualizar(w, b, e, xi)"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "II",
+     "numero": 21,
+     "enunciado": "Explica el proceso: Error → Actualización de parámetros → Nueva frontera"
+    }
+   ],
+   "enlaces": [
+    "error",
+    "actualizacion_pesos",
+    "actualizacion_bias",
+    "frontera",
+    "entrenamiento"
+   ]
+  },
+  {
+   "id": "parametro",
+   "nombre": "Parámetro",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 1480,
+    "y": 220
+   },
+   "radio": 54,
+   "capas": {
+    "visual": {
+     "etiqueta": "Parámetro",
+     "descripcion_corta": "Valores que el modelo aprende solo."
+    },
+    "matematica": {
+     "formula": "\\theta = (w, b)",
+     "explicacion": "Los pesos w y el bias b son parámetros: el modelo los aprende automáticamente durante el entrenamiento."
+    },
+    "pseudocodigo": {
+     "linea": "w, b ← valores iniciales entregados al algoritmo",
+     "contexto": "Se modifican en cada corrección"
+    },
+    "codigo": {
+     "python": "# Salida del entrenamiento: w y b ajustados"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "III",
+     "numero": 22,
+     "enunciado": "Clasifica cada elemento como parámetro o hiperparámetro (w₁, w₂, b, η, epochs)."
+    },
+    {
+     "pdf": "actividad_percep",
+     "parte": "III",
+     "numero": 23,
+     "enunciado": "¿Cuáles de esos valores aprende automáticamente el modelo?"
+    }
+   ],
+   "enlaces": [
+    "pesos",
+    "bias",
+    "hiperparametro"
+   ]
+  },
+  {
+   "id": "hiperparametro",
+   "nombre": "Hiperparámetro",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 1760,
+    "y": 200
+   },
+   "radio": 56,
+   "capas": {
+    "visual": {
+     "etiqueta": "Hiperparámetro",
+     "descripcion_corta": "Valores decididos antes de entrenar."
+    },
+    "matematica": {
+     "formula": "\\eta, \\ E",
+     "explicacion": "La tasa de aprendizaje η y el número de epochs son hiperparámetros: se definen antes del entrenamiento y no los aprende el modelo."
+    },
+    "pseudocodigo": {
+     "linea": "Definir η y número de epochs antes del INICIO",
+     "contexto": "Decisiones del diseñador"
+    },
+    "codigo": {
+     "python": "eta = 0.1\nnum_epochs = 20"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "III",
+     "numero": 22,
+     "enunciado": "Clasifica cada elemento como parámetro o hiperparámetro (w₁, w₂, b, η, epochs)."
+    },
+    {
+     "pdf": "actividad_percep",
+     "parte": "III",
+     "numero": 24,
+     "enunciado": "¿Cuáles son definidos antes del entrenamiento?"
+    }
+   ],
+   "enlaces": [
+    "eta",
+    "epoch",
+    "parametro"
+   ]
+  },
+  {
+   "id": "epoch",
+   "nombre": "Epoch",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 1760,
+    "y": 380
+   },
+   "radio": 52,
+   "capas": {
+    "visual": {
+     "etiqueta": "Epoch",
+     "descripcion_corta": "Una pasada completa por el dataset."
+    },
+    "matematica": {
+     "formula": "1 \\text{ epoch} = \\text{recorrer todo el dataset una vez}",
+     "explicacion": "Con 100 ejemplos, un epoch procesa 100 ejemplos. Entrenar 20 epochs recorre el dataset completo 20 veces."
+    },
+    "pseudocodigo": {
+     "linea": "REPETIR para cada epoch: procesar todos los ejemplos",
+     "contexto": "Ciclo externo del entrenamiento"
+    },
+    "codigo": {
+     "python": "for epoch in range(num_epochs):"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "III",
+     "numero": 25,
+     "enunciado": "¿Qué es un epoch?"
+    },
+    {
+     "pdf": "actividad_percep",
+     "parte": "III",
+     "numero": 26,
+     "enunciado": "Con 100 ejemplos, ¿cuántos deben procesarse para completar un epoch?"
+    },
+    {
+     "pdf": "actividad_percep",
+     "parte": "III",
+     "numero": 27,
+     "enunciado": "Entrenando 20 epochs, ¿cuántas veces se recorre el dataset completo?"
+    }
+   ],
+   "enlaces": [
+    "dataset",
+    "ciclo_ejemplos",
+    "hiperparametro",
+    "ciclo_epochs"
+   ]
+  },
+  {
+   "id": "dataset",
+   "nombre": "Dataset",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 1300,
+    "y": 90
+   },
+   "radio": 52,
+   "capas": {
+    "visual": {
+     "etiqueta": "Dataset",
+     "descripcion_corta": "El conjunto de ejemplos etiquetados."
+    },
+    "matematica": {
+     "formula": "D = \\{(x^{(1)}, y^{(1)}), \\dots, (x^{(m)}, y^{(m)})\\}",
+     "explicacion": "m ejemplos, cada uno con sus características y su etiqueta. Ej.: 4 ejemplos con 2 características cada uno."
+    },
+    "pseudocodigo": {
+     "linea": "recibir el dataset de entrenamiento",
+     "contexto": "Primera entrada del algoritmo"
+    },
+    "codigo": {
+     "python": "X = [[1,2],[2,3],[-1,-2],[-2,-3]]\ny = [1,1,0,0]"
+    },
+    "ejercicio": {
+     "titulo": "Dataset de ejemplo (Parte VI)",
+     "datos": "[[1,2], [2,3], [-1,-2], [-2,-3]] → etiquetas [1,1,0,0]",
+     "solucion": "4 ejemplos, 2 características; la etiqueta de (2,3) es 1; procesar solo un ejemplo NO completa un epoch."
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "pseudo_codigo",
+     "parte": "VI",
+     "numero": 1,
+     "enunciado": "¿Qué significa m en D = {(x¹,y¹), …, (xᵐ,yᵐ)}?"
+    }
+   ],
+   "enlaces": [
+    "epoch",
+    "ejemplo",
+    "ciclo_ejemplos"
+   ]
+  },
+  {
+   "id": "ejemplo",
+   "nombre": "Ejemplo (x, y)",
+   "categoria": "componente",
+   "posicion": {
+    "x": 1520,
+    "y": 90
+   },
+   "radio": 52,
+   "capas": {
+    "visual": {
+     "etiqueta": "Ejemplo (x, y)",
+     "descripcion_corta": "Un dato de entrada con su etiqueta."
+    },
+    "matematica": {
+     "formula": "(x, y)",
+     "explicacion": "Cada ejemplo de entrenamiento contiene el vector de características x y su etiqueta real y."
+    },
+    "pseudocodigo": {
+     "linea": "PARA cada ejemplo (x, y) del dataset:",
+     "contexto": "Unidad que recorre el algoritmo"
+    },
+    "codigo": {
+     "python": "ejemplo = {'x': [1, 2], 'y': 1}"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "pseudo_codigo",
+     "parte": "I",
+     "numero": 1,
+     "enunciado": "¿Qué información deberá contener cada ejemplo de entrenamiento?"
+    }
+   ],
+   "enlaces": [
+    "dataset",
+    "entradas",
+    "y_real",
+    "ciclo_ejemplos"
+   ]
+  },
+  {
+   "id": "ejercicio_prediccion",
+   "nombre": "Ejercicio 1: Predicción",
+   "categoria": "operacion",
+   "posicion": {
+    "x": 660,
+    "y": 160
+   },
+   "radio": 60,
+   "capas": {
+    "visual": {
+     "etiqueta": "Ejercicio 1",
+     "descripcion_corta": "Calcular la predicción paso a paso."
+    },
+    "matematica": {
+     "formula": "w^T x = 0.3, \\quad z = 0.3 - 0.3 = 0, \\quad \\hat{y} = 1",
+     "explicacion": "Datos: x = (2, −1, 3), w = (0.4, 0.2, −0.1), b = −0.3.\n1) w^T x = 0.4·2 + 0.2·(−1) + (−0.1)·3 = 0.8 − 0.2 − 0.3 = 0.3\n2) z = 0.3 + (−0.3) = 0\n3) Como z ≥ 0 → ŷ = 1 → clase 1.\nSi cambiamos solo b a 1: z = 1.3 → ŷ sigue siendo 1 (el valor de z cambia, pero no la clase)."
+    },
+    "pseudocodigo": {
+     "linea": "1. z ← Σ w[i]·x[i]\n2. z ← z + b\n3. SI z >= 0 → ŷ ← 1",
+     "contexto": "Secuencia de la predicción"
+    },
+    "codigo": {
+     "python": "x = [2, -1, 3]; w = [0.4, 0.2, -0.1]; b = -0.3\nz = sum(w[i]*x[i] for i in range(3)) + b\ny_hat = 1 if z >= 0 else 0\nprint(z, y_hat)  # 0.0 1"
+    },
+    "ejercicio": {
+     "titulo": "Predicción",
+     "datos": "x = (2, −1, 3) · w = (0.4, 0.2, −0.1) · b = −0.3",
+     "solucion": "w^T x = 0.3 · z = 0 · ŷ = 1 · clase 1 · con b = 1 → z = 1.3, ŷ = 1"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "IV",
+     "numero": 1,
+     "enunciado": "Calcula w^T x con x = (2, −1, 3) y w = (0.4, 0.2, −0.1)."
+    }
+   ],
+   "enlaces": [
+    "z",
+    "activacion",
+    "salida",
+    "ejemplo"
+   ]
+  },
+  {
+   "id": "ejercicio_actualizacion",
+   "nombre": "Ejercicio 2: Actualización",
+   "categoria": "operacion",
+   "posicion": {
+    "x": 940,
+    "y": 160
+   },
+   "radio": 62,
+   "capas": {
+    "visual": {
+     "etiqueta": "Ejercicio 2",
+     "descripcion_corta": "Corregir pesos y bias con el error."
+    },
+    "matematica": {
+     "formula": "z = -0.3, \\ \\hat{y} = 0, \\ e = 1, \\ \\Delta w = (0.1, 0.4)",
+     "explicacion": "Datos: x = (1, 4), y = 1, w = (−0.2, 0.1), b = −0.5, η = 0.1.\n1) z = −0.2·1 + 0.1·4 − 0.5 = −0.3 → 2) ŷ = 0 → 3) e = 1 − 0 = 1\n4) Δw₁ = 0.1·1·1 = 0.1 · Δw₂ = 0.1·1·4 = 0.4\n5) w₁ = −0.2 + 0.1 = −0.1 · w₂ = 0.1 + 0.4 = 0.5\n6) b = −0.5 + 0.1·1 = −0.4\n7) El perceptrón subió z para que la próxima vez pronostique 1."
+    },
+    "pseudocodigo": {
+     "linea": "e ← y − ŷ\nPARA i: w[i] ← w[i] + η·e·x[i]\nb ← b + η·e",
+     "contexto": "La fase de aprendizaje completa"
+    },
+    "codigo": {
+     "python": "x=[1,4]; y=1; w=[-0.2,0.1]; b=-0.5; eta=0.1\ne = y - (1 if -0.3 >= 0 else 0)\nfor i in range(2): w[i] += eta*e*x[i]\nb += eta*e\nprint(w, b)  # [-0.1, 0.5] -0.4"
+    },
+    "ejercicio": {
+     "titulo": "Actualización de parámetros",
+     "datos": "x = (1, 4) · y = 1 · w = (−0.2, 0.1) · b = −0.5 · η = 0.1",
+     "solucion": "z = −0.3 · ŷ = 0 · e = 1 · Δw = (0.1, 0.4) · wN = (−0.1, 0.5) · bN = −0.4"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "V",
+     "numero": 4,
+     "enunciado": "Calcula Δw₁ = η·e·x₁ y Δw₂ = η·e·x₂."
+    }
+   ],
+   "enlaces": [
+    "error",
+    "regla_aprendizaje",
+    "actualizacion_pesos",
+    "actualizacion_bias"
+   ]
+  },
+  {
+   "id": "xor",
+   "nombre": "Problema XOR",
+   "categoria": "limitacion",
+   "posicion": {
+    "x": 1720,
+    "y": 1160
+   },
+   "radio": 58,
+   "capas": {
+    "visual": {
+     "etiqueta": "XOR",
+     "descripcion_corta": "El problema que un perceptrón no puede resolver."
+    },
+    "matematica": {
+     "formula": "(0,0) \\to 0,\\ (0,1) \\to 1,\\ (1,0) \\to 1,\\ (1,1) \\to 0",
+     "explicacion": "Las clases forman un cuadrado con clases alternadas en las esquinas. Ninguna recta puede separar las dos clases: no es linealmente separable."
+    },
+    "pseudocodigo": {
+     "linea": "No existe w, b tal que w^T x + b = 0 separe los 4 puntos",
+     "contexto": "Demostración por contradicción geométrica"
+    },
+    "codigo": {
+     "python": "# Un perceptrón NUNCA converge en XOR:\n# el error oscila entre 0.0 y 0.5 sin importar los epochs."
+    },
+    "historia": {
+     "texto": "Minsky y Papert (1969) demostraron en 'Perceptrons' que un solo perceptrón no puede resolver XOR, lo que enfrió la investigación en redes neuronales durante años.",
+     "referencia": "Minsky & Papert, 1969"
+    },
+    "ejercicio": {
+     "titulo": "Tabla XOR",
+     "datos": "x₁ x₂ → y: 0 0→0 · 0 1→1 · 1 0→1 · 1 1→0",
+     "solucion": "Dibuja los 4 puntos: (0,0) y (1,1) clase 0; (0,1) y (1,0) clase 1. No existe una recta separadora: más epochs, otra η u otros pesos iniciales NO lo resuelven. El problema está en la capacidad del modelo."
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "VII",
+     "numero": 4,
+     "enunciado": "Intenta dibujar una única recta que separe perfectamente ambas clases: ¿es posible?"
+    }
+   ],
+   "enlaces": [
+    "linealidad",
+    "mlp",
+    "frontera"
+   ]
+  },
+  {
+   "id": "linealidad",
+   "nombre": "Limitación de linealidad",
+   "categoria": "limitacion",
+   "posicion": {
+    "x": 1500,
+    "y": 1200
+   },
+   "radio": 60,
+   "capas": {
+    "visual": {
+     "etiqueta": "Linealidad",
+     "descripcion_corta": "Solo separa clases con una frontera recta."
+    },
+    "matematica": {
+     "formula": "\\text{solo funciona si las clases son linealmente separables}",
+     "explicacion": "El perceptrón solo puede dibujar una frontera: una recta, un plano o un hiperplano. Si las clases se entrelazan, jamás las separará."
+    },
+    "pseudocodigo": {
+     "linea": "SI las clases no son separables → el error nunca llega a 0",
+     "contexto": "Límite del modelo"
+    },
+    "codigo": {
+     "python": "# Señal de fallo: e nunca se vuelve 0 por más epochs"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "VII",
+     "numero": 8,
+     "enunciado": "¿El problema parece estar en el entrenamiento o en la capacidad del modelo?"
+    }
+   ],
+   "enlaces": [
+    "xor",
+    "clasificador_lineal",
+    "frontera"
+   ]
+  },
+  {
+   "id": "mlp",
+   "nombre": "Red Multicapa (MLP)",
+   "categoria": "evolucion",
+   "posicion": {
+    "x": 2020,
+    "y": 1180
+   },
+   "radio": 60,
+   "capas": {
+    "visual": {
+     "etiqueta": "MLP",
+     "descripcion_corta": "Varias neuronas organizadas en capas."
+    },
+    "matematica": {
+     "formula": "\\text{varias neuronas en capas} \\;\\Rightarrow\\; \\text{fronteras no lineales}",
+     "explicacion": "Cada neurona aprende una frontera distinta; al combinar sus salidas (alimentando unas neuronas con las salidas de otras) se construyen regiones de decisión complejas pudiendo resolver XOR."
+    },
+    "pseudocodigo": {
+     "linea": "Capa 1 calcula fronteras simples → Capa 2 combina esas fronteras",
+     "contexto": "Jerarquía de características"
+    },
+    "codigo": {
+     "python": "# Red con una capa oculta: pueded aprender XOR\n# (se usa con backpropagation, no con la regla del perceptrón)"
+    },
+    "historia": {
+     "texto": "La solución a XOR llegó con las redes multicapa y el algoritmo de retropropagación, popularizado por Rumelhart, Hinton y Williams (1986).",
+     "referencia": "Rumelhart, Hinton & Williams, 1986"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "VIII",
+     "numero": 5,
+     "enunciado": "¿Qué podría significar organizar varios perceptrones en diferentes niveles o capas?"
+    },
+    {
+     "pdf": "actividad_percep",
+     "parte": "VIII",
+     "numero": 10,
+     "enunciado": "Reto final: ¿por qué una red de varias neuronas y capas podría resolver lo que un perceptrón no puede?"
+    }
+   ],
+   "enlaces": [
+    "xor",
+    "capa_oculta",
+    "backpropagation",
+    "linealidad"
+   ]
+  },
+  {
+   "id": "capa_oculta",
+   "nombre": "Capa oculta",
+   "categoria": "evolucion",
+   "posicion": {
+    "x": 2020,
+    "y": 1340
+   },
+   "radio": 56,
+   "capas": {
+    "visual": {
+     "etiqueta": "Capa oculta",
+     "descripcion_corta": "Neuronas entre la entrada y la salida."
+    },
+    "matematica": {
+     "formula": "\\text{capa de neuronas entre la entrada y la salida}",
+     "explicacion": "Capa invisible desde el exterior del modelo. Sus neuronas detectan patrones simples que las capas siguientes combinan en conceptos más abstractos."
+    },
+    "pseudocodigo": {
+     "linea": "entrada → [capas ocultas] → salida",
+     "contexto": "Cada capa oculta aprende sus propios pesos y bias"
+    },
+    "codigo": {
+     "python": "# capa_oculta = neurona_frontera_1 + neurona_frontera_2\n# salida = combinar(h1, h2)"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "VIII",
+     "numero": 8,
+     "enunciado": "¿Qué podría ser una capa oculta?"
+    }
+   ],
+   "enlaces": [
+    "mlp",
+    "backpropagation"
+   ]
+  },
+  {
+   "id": "backpropagation",
+   "nombre": "Backpropagation",
+   "categoria": "evolucion",
+   "posicion": {
+    "x": 2300,
+    "y": 1220
+   },
+   "radio": 60,
+   "capas": {
+    "visual": {
+     "etiqueta": "Backpropagation",
+     "descripcion_corta": "Propaga el error hacia atrás para ajustar todos los pesos."
+    },
+    "matematica": {
+     "formula": "\\frac{\\partial E}{\\partial w_{ij}}",
+     "explicacion": "Con cientos o miles de pesos no sabemos cuál provocó el error: la retropropagación calcula, con la regla de la cadena, cuánto contribuyó cada neurona al error final y ajusta sus parámetros."
+    },
+    "pseudocodigo": {
+     "linea": "1. predicción → 2. error en salida → 3. repartir el error hacia atrás",
+     "contexto": "Aprendizaje de redes multicapa"
+    },
+    "codigo": {
+     "python": "# gradiente: qué tanto cambió cada peso con el error\n# w[i][j] -= eta * (∂E/∂w[i][j])"
+    },
+    "historia": {
+     "texto": "Ideado por Werbos (1974) y popularizado por Rumelhart, Hinton y Williams (1986): es el motor del renacimiento de las redes neuronales.",
+     "referencia": "Werbos, 1974 · Rumelhart et al., 1986"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "actividad_percep",
+     "parte": "VIII",
+     "numero": 9,
+     "enunciado": "Con cientos de pesos, ¿cómo saber cuáles modificar cuando la predicción final es incorrecta?"
+    },
+    {
+     "pdf": "actividad_percep",
+     "parte": "VIII",
+     "numero": 10,
+     "enunciado": "¿Cómo determinar cuánto contribuyó cada neurona al error final?"
+    }
+   ],
+   "enlaces": [
+    "mlp",
+    "capa_oculta"
+   ]
+  },
+  {
+   "id": "algoritmo",
+   "nombre": "Algoritmo",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 2030,
+    "y": 240
+   },
+   "radio": 58,
+   "capas": {
+    "visual": {
+     "etiqueta": "Algoritmo",
+     "descripcion_corta": "El plan completo para entrenar el perceptrón."
+    },
+    "matematica": {
+     "formula": "\\text{Entrada} \\to \\text{Predicción} \\to \\text{Error} \\to \\text{Actualización} \\to \\text{Repetir}",
+     "explicacion": "El reto no es aprender fórmulas nuevas, sino organizar las que ya existen: entradas, predicción, comparación, corrección y repetición."
+    },
+    "pseudocodigo": {
+     "linea": "INICIO\n  Recibir dataset, w, b, η, epochs\n  REPETIR epochs veces:\n    PARA cada (x, y) del dataset:\n      z ← Σ w·x + b ;  ŷ ← φ(z)\n      e ← y − ŷ\n      SI e ≠ 0: actualizar w y b\n  Devolver w, b\nFIN",
+     "contexto": "Estructura general (Parte X-XII)"
+    },
+    "codigo": {
+     "python": "def entrenar(X, y, w, b, eta, epochs):\n    for _ in range(epochs):\n        for xi, yi in zip(X, y):\n            z = sum(w[i]*xi[i] for i in range(len(xi))) + b\n            y_hat = 1 if z >= 0 else 0\n            e = yi - y_hat\n            for i in range(len(xi)): w[i] += eta * e * xi[i]\n            b += eta * e\n    return w, b"
+    },
+    "historia": {
+     "texto": "Construir un algoritmo = descomponer ideas en pasos pequeños, decisiones y repeticiones que una computadora pueda ejecutar.",
+     "referencia": "Actividad: Construyendo el Algoritmo de un Perceptrón"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "pseudo_codigo",
+     "parte": "XVI",
+     "numero": 1,
+     "enunciado": "Verificación: ¿En qué parte del algoritmo ocurre la predicción?"
+    }
+   ],
+   "enlaces": [
+    "prediccion",
+    "entrenamiento",
+    "pseudocodigo",
+    "ciclo_epochs"
+   ]
+  },
+  {
+   "id": "prediccion",
+   "nombre": "Predicción",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 2220,
+    "y": 160
+   },
+   "radio": 56,
+   "capas": {
+    "visual": {
+     "etiqueta": "Predicción",
+     "descripcion_corta": "Fase de inferencia: calcular ŷ con los parámetros actuales."
+    },
+    "matematica": {
+     "formula": "z = w^T x + b, \\quad \\hat{y} = \\phi(z)",
+     "explicacion": "Solo usa los parámetros actuales; NO aprende. Orden: primero la suma ponderada, después el bias y por último la activación."
+    },
+    "pseudocodigo": {
+     "linea": "z ← 0\nPARA i: z ← z + w[i]·x[i]\nz ← z + b\nŷ ← φ(z)",
+     "contexto": "La función predecir()"
+    },
+    "codigo": {
+     "python": "def predecir(x, w, b):\n    z = sum(w[i]*x[i] for i in range(len(x))) + b\n    return 1 if z >= 0 else 0"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "pseudo_codigo",
+     "parte": "III",
+     "numero": 1,
+     "enunciado": "¿Qué operación debería realizarse primero para predecir?"
+    }
+   ],
+   "enlaces": [
+    "z",
+    "activacion",
+    "salida",
+    "algoritmo",
+    "y_pred"
+   ]
+  },
+  {
+   "id": "entrenamiento",
+   "nombre": "Entrenamiento",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 2220,
+    "y": 340
+   },
+   "radio": 58,
+   "capas": {
+    "visual": {
+     "etiqueta": "Entrenamiento",
+     "descripcion_corta": "Predicción + error + actualización sobre todo el dataset."
+    },
+    "matematica": {
+     "formula": "e = y - \\hat{y}, \\quad \\Delta w = \\eta e x, \\quad \\Delta b = \\eta e",
+     "explicacion": "Hacer una predicción no es aprender. Solo al comparar con y, calcular e y corregir parámetros ocurre el aprendizaje."
+    },
+    "pseudocodigo": {
+     "linea": "PARA cada (x, y) del dataset:\n    ŷ ← predecir(x)\n    e ← y − ŷ\n    SI e ≠ 0: actualizar w y b",
+     "contexto": "Núcleo del entrenamiento (Parte V)"
+    },
+    "codigo": {
+     "python": "e = y - y_hat\nif e != 0:\n    for i in range(n): w[i] += eta * e * x[i]\n    b += eta * e"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "pseudo_codigo",
+     "parte": "V",
+     "numero": 2,
+     "enunciado": "Si e = 0, ¿será necesario modificar los pesos?"
+    }
+   ],
+   "enlaces": [
+    "error",
+    "regla_aprendizaje",
+    "proceso_aprendizaje",
+    "algoritmo",
+    "ciclo_epochs"
+   ]
+  },
+  {
+   "id": "ciclo_epochs",
+   "nombre": "Ciclo de epochs",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 2420,
+    "y": 260
+   },
+   "radio": 56,
+   "capas": {
+    "visual": {
+     "etiqueta": "Ciclo de epochs",
+     "descripcion_corta": "El ciclo externo que repite el dataset."
+    },
+    "matematica": {
+     "formula": "\\text{para } e = 1 \\dots E",
+     "explicacion": "Controla cuántas veces se recorre el dataset completo."
+    },
+    "pseudocodigo": {
+     "linea": "REPETIR durante varios epochs:\n    PARA cada ejemplo del dataset:",
+     "contexto": "Primer ciclo (Parte VII)"
+    },
+    "codigo": {
+     "python": "for epoch in range(num_epochs):"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "pseudo_codigo",
+     "parte": "VII",
+     "numero": 1,
+     "enunciado": "¿Qué debería controlar el primer ciclo?"
+    }
+   ],
+   "enlaces": [
+    "epoch",
+    "ciclo_ejemplos",
+    "algoritmo",
+    "pseudocodigo"
+   ]
+  },
+  {
+   "id": "ciclo_ejemplos",
+   "nombre": "Ciclo de ejemplos",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 2420,
+    "y": 460
+   },
+   "radio": 56,
+   "capas": {
+    "visual": {
+     "etiqueta": "Ciclo de ejemplos",
+     "descripcion_corta": "Recorre cada ejemplo del dataset."
+    },
+    "matematica": {
+     "formula": "m = |D| \\text{ ejemplos por epoch}",
+     "explicacion": "Segundo ciclo: procesa todos los ejemplos (x, y) del dataset durante un epoch. Los pesos actualizados en un ejemplo se usan para el siguiente."
+    },
+    "pseudocodigo": {
+     "linea": "PARA cada ejemplo (x, y) del dataset:",
+     "contexto": "Ciclo medio"
+    },
+    "codigo": {
+     "python": "for xi, yi in zip(X, y):"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "pseudo_codigo",
+     "parte": "VI",
+     "numero": 3,
+     "enunciado": "¿Qué estructura usarías para recorrer todos los ejemplos?"
+    }
+   ],
+   "enlaces": [
+    "dataset",
+    "ejemplo",
+    "ciclo_caracteristicas",
+    "epoch"
+   ]
+  },
+  {
+   "id": "ciclo_caracteristicas",
+   "nombre": "Ciclo de características",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 2420,
+    "y": 640
+   },
+   "radio": 62,
+   "capas": {
+    "visual": {
+     "etiqueta": "Ciclo de características",
+     "descripcion_corta": "Recorre cada xᵢ y su peso wᵢ."
+    },
+    "matematica": {
+     "formula": "\\sum_{i=1}^{n} w_i x_i, \\quad w_i \\leftarrow w_i + \\eta e x_i",
+     "explicacion": "Ciclo interno: acumula en la suma ponderada y actualiza el peso de cada característica."
+    },
+    "pseudocodigo": {
+     "linea": "PARA i ← 1 HASTA n:\n    z ← z + w[i]·x[i]",
+     "contexto": "Ciclo más interno"
+    },
+    "codigo": {
+     "python": "for i in range(n):\n    z += w[i] * x[i]"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "pseudo_codigo",
+     "parte": "VII",
+     "numero": 5,
+     "enunciado": "¿Qué operaciones deben ejecutarse una vez por cada característica?"
+    }
+   ],
+   "enlaces": [
+    "pesos",
+    "ciclo_ejemplos",
+    "actualizacion_pesos"
+   ]
+  },
+  {
+   "id": "pseudocodigo",
+   "nombre": "Pseudocódigo",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 2030,
+    "y": 560
+   },
+   "radio": 62,
+   "capas": {
+    "visual": {
+     "etiqueta": "Pseudocódigo",
+     "descripcion_corta": "El algoritmo expresado con estructura, listo para programar."
+    },
+    "matematica": {
+     "formula": "\\text{INICIO} \\to \\text{PARA} \\to \\text{SI} \\to \\text{FIN}",
+     "explicacion": "Usa solo las estructuras permitidas: INICIO, FIN, PARA..., SI...ENTONCES...FIN SI, FIN PARA y asignaciones v ← valor."
+    },
+    "pseudocodigo": {
+     "linea": "INICIO\n  Recibir dataset, w, b, η, epochs\n  REPETIR epochs veces:\n    PARA cada (x, y) del dataset:\n      z ← 0\n      PARA i ← 1 HASTA n:\n        z ← z + w[i]·x[i]\n      z ← z + b\n      SI z >= 0 ENTONCES ŷ ← 1 SINO ŷ ← 0\n      e ← y − ŷ\n      SI e ≠ 0 ENTONCES\n        PARA i ← 1 HASTA n:\n          w[i] ← w[i] + η·e·x[i]\n        b ← b + η·e\n      FIN SI\n    FIN PARA\n  FIN REPETIR\n  Devolver w, b\nFIN",
+     "contexto": "Estructura completa del entrenamiento (Parte XII)"
+    },
+    "codigo": {
+     "python": "def entrenar(X, y, w, b, eta, epochs):\n    \"\"\"Entrenamiento completo de un perceptrón.\"\"\"\n    for _ in range(epochs):\n        for xi, yi in zip(X, y):\n            z = sum(w[i] * xi[i] for i in range(len(xi))) + b\n            y_hat = 1 if z >= 0 else 0\n            e = yi - y_hat\n            if e != 0:\n                for i in range(len(xi)):\n                    w[i] += eta * e * xi[i]\n                b += eta * e\n    return w, b"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "pseudo_codigo",
+     "parte": "XVI",
+     "numero": 2,
+     "enunciado": "Verificación: ¿En qué parte ocurre realmente el aprendizaje?"
+    }
+   ],
+   "enlaces": [
+    "algoritmo",
+    "ciclo_epochs",
+    "ciclo_ejemplos",
+    "mapeo_python",
+    "prueba_manual"
+   ]
+  },
+  {
+   "id": "prueba_manual",
+   "nombre": "Prueba manual",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 1760,
+    "y": 540
+   },
+   "radio": 62,
+   "capas": {
+    "visual": {
+     "etiqueta": "Prueba manual",
+     "descripcion_corta": "Comprueba el pseudocódigo a mano con un dataset mínimo."
+    },
+    "matematica": {
+     "formula": "\\text{1 epoch · w = (0,0) · b = 0 · η = 0.1}",
+     "explicacion": "Ejemplo 1 x=(1,1) y=1 → z=0 → ŷ=1 → e=0 (sin cambios). Ejemplo 2 x=(−1,−1) y=0 → z=0 → ŷ=1 → e=−1 → Δw=(0.1,0.1) y Δb=−0.1. Pesos finales: (0.1, 0.1), b=−0.1. Importante: el segundo ejemplo usa los pesos YA actualizados por el primero."
+    },
+    "pseudocodigo": {
+     "linea": "para cada ejemplo:\n  z ← Σw·x + b\n  ŷ ← φ(z)\n  e ← y − ŷ\n  actualizar w y b",
+     "contexto": "Seguir el orden exacto del pseudocódigo"
+    },
+    "codigo": {
+     "python": "dataset = [([1,1], 1), ([-1,-1], 0)]\nw, b, eta = [0, 0], 0, 0.1\nfor x, y in dataset:\n    z = sum(w[i]*x[i] for i in range(2)) + b\n    y_hat = 1 if z >= 0 else 0\n    e = y - y_hat\n    for i in range(2): w[i] += eta*e*x[i]\n    b += eta*e\nprint(w, b)  # [0.1, 0.1] -0.1"
+    },
+    "ejercicio": {
+     "titulo": "Prueba manual (1 epoch)",
+     "datos": "Dataset: (1,1)→1 y (−1,−1)→0 · w=(0,0) · b=0 · η=0.1",
+     "solucion": "Ej1: z=0, ŷ=1, e=0 → no cambia nada. Ej2: z=0, ŷ=1, e=−1 → Δw1=0.1, Δw2=0.1, Δb=−0.1. Final: w=(0.1,0.1), b=−0.1. El segundo ejemplo usa los pesos actualizados tras el primero."
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "pseudo_codigo",
+     "parte": "XIII",
+     "numero": 1,
+     "enunciado": "Para el segundo ejemplo, ¿usaste los pesos iniciales o los pesos obtenidos después del primer ejemplo?"
+    }
+   ],
+   "enlaces": [
+    "pseudocodigo",
+    "entrenamiento",
+    "ciclo_ejemplos",
+    "ejemplo"
+   ]
+  },
+  {
+   "id": "mapeo_python",
+   "nombre": "Mapear hacia Python",
+   "categoria": "proceso",
+   "posicion": {
+    "x": 2220,
+    "y": 700
+   },
+   "radio": 58,
+   "capas": {
+    "visual": {
+     "etiqueta": "Mapear a Python",
+     "descripcion_corta": "Cada pieza del perceptrón → construcción de Python."
+    },
+    "matematica": {
+     "formula": "\\text{x → lista · w → lista · b → float · η → float}",
+     "explicacion": "Vector x → lista; vector w → lista; bias b → número; tasa η → número; recorrer ejemplos → for; recorrer características → for con índice; activación → condicional; actualizar peso → w[i] = w[i] + η·e·x[i]; repetir epochs → for en range()."
+    },
+    "pseudocodigo": {
+     "linea": "PARA epochs → for _ in range(E)\nPARA ejemplos → for x, y in dataset\nPARA características → for i in range(n)",
+     "contexto": "Traducción 1:1 de estructuras"
+    },
+    "codigo": {
+     "python": "# Mapa concepto → Python\nX, y = [[1,2],[2,3]], [1,0]   # dataset\nw, b, eta = [0.0, 0.0], 0.0, 0.1\nfor epoch in range(20):        # repetir epochs\n    for x, y_true in zip(X, y):# recorrer ejemplos\n        z = b\n        for i in range(len(x)):# recorrer características\n            z += w[i] * x[i]\n        y_hat = 1 if z >= 0 else 0   # activación\n        e = y_true - y_hat           # error\n        for i in range(len(x)):\n            w[i] += eta * e * x[i]   # actualizar peso\n        b += eta * e                 # actualizar bias"
+    }
+   },
+   "pregunta_asociada": [
+    {
+     "pdf": "pseudo_codigo",
+     "parte": "XV",
+     "numero": 1,
+     "enunciado": "¿Cómo podría representarse el vector x en Python?"
+    }
+   ],
+   "enlaces": [
+    "pseudocodigo",
+    "entrenamiento",
+    "prediccion",
+    "algoritmo"
+   ]
+  }
+ ],
+ "conexiones": [
+  {
+   "id": "c_percep_entradas",
+   "desde": "perceptron",
+   "hasta": "entradas",
+   "etiqueta": "contiene",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_percep_pesos",
+   "desde": "perceptron",
+   "hasta": "pesos",
+   "etiqueta": "contiene",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_percep_bias",
+   "desde": "perceptron",
+   "hasta": "bias",
+   "etiqueta": "contiene",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_entradas_z",
+   "desde": "entradas",
+   "hasta": "z",
+   "etiqueta": "x",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_pesos_z",
+   "desde": "pesos",
+   "hasta": "z",
+   "etiqueta": "w",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_bias_z",
+   "desde": "bias",
+   "hasta": "z",
+   "etiqueta": "b",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_z_activacion",
+   "desde": "z",
+   "hasta": "activacion",
+   "etiqueta": "z",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_activacion_salida",
+   "desde": "activacion",
+   "hasta": "salida",
+   "etiqueta": "φ",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_salida_y_pred",
+   "desde": "salida",
+   "hasta": "y_pred",
+   "etiqueta": "ŷ",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_salida_clasificador",
+   "desde": "salida",
+   "hasta": "clasificador_lineal",
+   "etiqueta": "es",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_frontera_clasi",
+   "desde": "frontera",
+   "hasta": "clasificador_lineal",
+   "etiqueta": "es",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_y_pred_y_real",
+   "desde": "y_pred",
+   "hasta": "y_real",
+   "etiqueta": "compara",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_y_real_error",
+   "desde": "y_real",
+   "hasta": "error",
+   "etiqueta": "y",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_error_regla",
+   "desde": "error",
+   "hasta": "regla_aprendizaje",
+   "etiqueta": "e",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_regla_pesos",
+   "desde": "regla_aprendizaje",
+   "hasta": "pesos",
+   "etiqueta": "modifica",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_regla_bias",
+   "desde": "regla_aprendizaje",
+   "hasta": "bias",
+   "etiqueta": "modifica",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_eta_regla",
+   "desde": "eta",
+   "hasta": "regla_aprendizaje",
+   "etiqueta": "controla",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_error_proceso",
+   "desde": "error",
+   "hasta": "proceso_aprendizaje",
+   "etiqueta": "alimenta",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_proceso_act_pesos",
+   "desde": "proceso_aprendizaje",
+   "hasta": "actualizacion_pesos",
+   "etiqueta": "",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_proceso_act_bias",
+   "desde": "proceso_aprendizaje",
+   "hasta": "actualizacion_bias",
+   "etiqueta": "",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_act_pesos_frontera",
+   "desde": "actualizacion_pesos",
+   "hasta": "frontera",
+   "etiqueta": "rota",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_act_bias_frontera",
+   "desde": "actualizacion_bias",
+   "hasta": "frontera",
+   "etiqueta": "desplaza",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_z_frontera",
+   "desde": "z",
+   "hasta": "frontera",
+   "etiqueta": "define",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_pesos_parametro",
+   "desde": "pesos",
+   "hasta": "parametro",
+   "etiqueta": "es",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_bias_parametro",
+   "desde": "bias",
+   "hasta": "parametro",
+   "etiqueta": "es",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_eta_hiper",
+   "desde": "eta",
+   "hasta": "hiperparametro",
+   "etiqueta": "es",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_epoch_hiper",
+   "desde": "epoch",
+   "hasta": "hiperparametro",
+   "etiqueta": "es",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_dataset_epoch",
+   "desde": "dataset",
+   "hasta": "epoch",
+   "etiqueta": "recorre",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_epoch_ciclo_ejemplos",
+   "desde": "epoch",
+   "hasta": "ciclo_ejemplos",
+   "etiqueta": "contiene",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_ciclo_ejemplos_car",
+   "desde": "ciclo_ejemplos",
+   "hasta": "ciclo_caracteristicas",
+   "etiqueta": "contiene",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_percep_xor",
+   "desde": "perceptron",
+   "hasta": "xor",
+   "etiqueta": "no puede",
+   "tipo": "limitacion"
+  },
+  {
+   "id": "c_clasi_lineal",
+   "desde": "clasificador_lineal",
+   "hasta": "linealidad",
+   "etiqueta": "limita",
+   "tipo": "limitacion"
+  },
+  {
+   "id": "c_linealidad_xor",
+   "desde": "linealidad",
+   "hasta": "xor",
+   "etiqueta": "causa",
+   "tipo": "limitacion"
+  },
+  {
+   "id": "c_xor_mlp",
+   "desde": "xor",
+   "hasta": "mlp",
+   "etiqueta": "motiva",
+   "tipo": "evolucion"
+  },
+  {
+   "id": "c_mlp_oculta",
+   "desde": "mlp",
+   "hasta": "capa_oculta",
+   "etiqueta": "contiene",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_mlp_back",
+   "desde": "mlp",
+   "hasta": "backpropagation",
+   "etiqueta": "usa",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_oculta_back",
+   "desde": "capa_oculta",
+   "hasta": "backpropagation",
+   "etiqueta": "conecta",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_ej1_z",
+   "desde": "ejercicio_prediccion",
+   "hasta": "z",
+   "etiqueta": "usa",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_ej1_act",
+   "desde": "ejercicio_prediccion",
+   "hasta": "activacion",
+   "etiqueta": "usa",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_ej2_error",
+   "desde": "ejercicio_actualizacion",
+   "hasta": "error",
+   "etiqueta": "usa",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_ej2_regla",
+   "desde": "ejercicio_actualizacion",
+   "hasta": "regla_aprendizaje",
+   "etiqueta": "usa",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_ej2_pesos",
+   "desde": "ejercicio_actualizacion",
+   "hasta": "actualizacion_pesos",
+   "etiqueta": "usa",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_ej2_bias",
+   "desde": "ejercicio_actualizacion",
+   "hasta": "actualizacion_bias",
+   "etiqueta": "usa",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_algo_prediccion",
+   "desde": "algoritmo",
+   "hasta": "prediccion",
+   "etiqueta": "",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_algo_entrenamiento",
+   "desde": "algoritmo",
+   "hasta": "entrenamiento",
+   "etiqueta": "",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_pred_y_pred",
+   "desde": "prediccion",
+   "hasta": "y_pred",
+   "etiqueta": "genera",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_ejemplo_entradas",
+   "desde": "ejemplo",
+   "hasta": "entradas",
+   "etiqueta": "tiene",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_entrenamiento_error",
+   "desde": "entrenamiento",
+   "hasta": "error",
+   "etiqueta": "calcula",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_entrenamiento_ciclo",
+   "desde": "entrenamiento",
+   "hasta": "ciclo_epochs",
+   "etiqueta": "controla",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_entrenamiento_proceso",
+   "desde": "entrenamiento",
+   "hasta": "proceso_aprendizaje",
+   "etiqueta": "usa",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_pseudo_algo",
+   "desde": "pseudocodigo",
+   "hasta": "algoritmo",
+   "etiqueta": "expresa",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_pseudo_ciclo",
+   "desde": "pseudocodigo",
+   "hasta": "ciclo_epochs",
+   "etiqueta": "anida",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_pseudo_prueba",
+   "desde": "pseudocodigo",
+   "hasta": "prueba_manual",
+   "etiqueta": "valida",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_prueba_entrenamiento",
+   "desde": "prueba_manual",
+   "hasta": "entrenamiento",
+   "etiqueta": "valida",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_mapeo_pseudo",
+   "desde": "mapeo_python",
+   "hasta": "pseudocodigo",
+   "etiqueta": "traduce",
+   "tipo": "flujo"
+  },
+  {
+   "id": "c_activacion_prediccion",
+   "desde": "activacion",
+   "hasta": "prediccion",
+   "etiqueta": "necesaria",
+   "tipo": "dependencia"
+  },
+  {
+   "id": "c_dataset_ejemplo",
+   "desde": "dataset",
+   "hasta": "ejemplo",
+   "etiqueta": "contiene",
+   "tipo": "dependencia"
+  }
+ ],
+ "senderos": [
+  {
+   "id": "s1",
+   "nombre": "Sendero 1: Anatomía del Perceptrón",
+   "descripcion": "Explora los componentes básicos del perceptrón.",
+   "pdf_asociado": "actividad_percep",
+   "partes": [
+    "I"
+   ],
+   "secuencia": [
+    "perceptron",
+    "entradas",
+    "pesos",
+    "bias",
+    "z",
+    "activacion",
+    "salida"
+   ],
+   "color": "#61dafb"
+  },
+  {
+   "id": "s2",
+   "nombre": "Sendero 2: ¿Cómo aprende?",
+   "descripcion": "Predicción, error y corrección de parámetros.",
+   "pdf_asociado": "actividad_percep",
+   "partes": [
+    "II"
+   ],
+   "secuencia": [
+    "y_pred",
+    "error",
+    "eta",
+    "regla_aprendizaje",
+    "actualizacion_pesos",
+    "actualizacion_bias",
+    "frontera"
+   ],
+   "color": "#69b3a2"
+  },
+  {
+   "id": "s3",
+   "nombre": "Sendero 3: Parámetros y Epochs",
+   "descripcion": "Qué aprende el modelo y qué decide el diseñador.",
+   "pdf_asociado": "actividad_percep",
+   "partes": [
+    "III"
+   ],
+   "secuencia": [
+    "parametro",
+    "hiperparametro",
+    "eta",
+    "epoch"
+   ],
+   "color": "#FFB84D"
+  },
+  {
+   "id": "s4",
+   "nombre": "Sendero 4: El Límite",
+   "descripcion": "La frontera lineal y sus consecuencias.",
+   "pdf_asociado": "actividad_percep",
+   "partes": [
+    "VII"
+   ],
+   "secuencia": [
+    "clasificador_lineal",
+    "xor",
+    "linealidad"
+   ],
+   "color": "#ff6b6b"
+  },
+  {
+   "id": "s5",
+   "nombre": "Sendero 5: Evolución a MLP",
+   "descripcion": "Del perceptrón a las redes multicapa.",
+   "pdf_asociado": "actividad_percep",
+   "partes": [
+    "VIII"
+   ],
+   "secuencia": [
+    "xor",
+    "mlp",
+    "capa_oculta",
+    "backpropagation"
+   ],
+   "color": "#C9A0FF"
+  },
+  {
+   "id": "s6",
+   "nombre": "Sendero 6: Construir el Algoritmo",
+   "descripcion": "Del pensamiento al pseudocódigo y a Python.",
+   "pdf_asociado": "pseudo_codigo",
+   "partes": [
+    "I",
+    "II",
+    "III",
+    "IV",
+    "V",
+    "VI",
+    "VII",
+    "VIII",
+    "IX",
+    "X",
+    "XI",
+    "XII",
+    "XIII",
+    "XIV",
+    "XV",
+    "XVI"
+   ],
+   "secuencia": [
+    "algoritmo",
+    "prediccion",
+    "entrenamiento",
+    "ciclo_epochs",
+    "ciclo_ejemplos",
+    "pseudocodigo",
+    "prueba_manual",
+    "mapeo_python"
+   ],
+   "color": "#8be9fd"
+  },
+  {
+   "id": "s7",
+   "nombre": "Sendero 7: Ejercicios numéricos",
+   "descripcion": "Predicción, actualización de parámetros y epoch con el dataset.",
+   "pdf_asociado": "actividad_percep",
+   "partes": [
+    "IV",
+    "V",
+    "VI"
+   ],
+   "secuencia": [
+    "z",
+    "ejercicio_prediccion",
+    "ejercicio_actualizacion",
+    "dataset",
+    "epoch"
+   ],
+   "color": "#f1c40f"
+  }
+ ]
+}

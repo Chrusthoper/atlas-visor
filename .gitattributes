@@ -1,0 +1,8 @@
+# Fin de línea consistente para todo el repositorio
+* text=auto eol=lf
+
+# Archivos binarios: nunca normalizar
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.db binary

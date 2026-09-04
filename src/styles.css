@@ -1,0 +1,552 @@
+/* ============================================================
+   Atlas del Perceptrón v2.0 — styles.css
+   Tema oscuro · clases BEM · transiciones 150-250ms
+   El grafo lo pinta Cytoscape.js sobre #cy (los estilos de
+   nodos/aristas viven en app.js, no aquí).
+   ============================================================ */
+
+:root {
+  --bg-canvas: #1e1e1e;
+  --bg-card: #2d2d2d;
+  --bg-card-header: #383838;
+  --bg-elevado: #3a3f46;
+  --border-card: #61dafb;
+  --text-primary: #eeeeee;
+  --text-secondary: #aaaaaa;
+  --accent: #61dafb;
+  --color-componente: #FFB84D;
+  --color-operacion: #61dafb;
+  --color-proceso: #69b3a2;
+  --color-limitacion: #ff6b6b;
+  --color-evolucion: #C9A0FF;
+  --shadow-card: 0 6px 18px rgba(0, 0, 0, 0.35);
+  --radius-card: 10px;
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --fuente: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", sans-serif;
+  --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+
+* { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--fuente);
+  font-size: 14px;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Foco visible para navegación por teclado (accesibilidad) */
+button:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------
+   Barra superior
+   ------------------------------------------------------------ */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  background: #23272e;
+  border-bottom: 1px solid #343a43;
+  z-index: 40;
+  flex-wrap: wrap;
+}
+
+.toolbar__left {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.toolbar__titulo {
+  font-size: 16px;
+  margin: 0;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.toolbar__subtitulo {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.toolbar__rayosx {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.toolbar__layer-btn {
+  border: 1px solid #454c56;
+  background: #2c3138;
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.toolbar__layer-btn:hover { color: var(--text-primary); border-color: #6b7683; }
+
+.toolbar__layer-btn--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #11212d;
+  font-weight: 600;
+}
+
+.toolbar__right { display: flex; gap: 8px; }
+
+.btn {
+  background: #2c3138;
+  color: var(--text-primary);
+  border: 1px solid #454c56;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn:hover { background: #39404a; transform: translateY(-1px); }
+.btn--activo { border-color: var(--accent); color: var(--accent); }
+
+/* Aviso de estado (API caída, etc.) */
+.aviso {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 55;
+  background: #4a2f2f;
+  border: 1px solid var(--color-limitacion);
+  color: #ffd9d9;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  box-shadow: var(--shadow-card);
+}
+
+/* ------------------------------------------------------------
+   Zona principal (canvas Cytoscape + tarjeta)
+   ------------------------------------------------------------ */
+.main {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Contenedor del grafo: Cytoscape necesita alto/ancho explícitos */
+.canvas__content {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-canvas);
+  /* Rejilla sutil de fondo */
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  touch-action: none;
+}
+
+/* ------------------------------------------------------------
+   Tarjeta flotante (anclada al nodo, NO bloqueante)
+   ------------------------------------------------------------ */
+.card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 330px;
+  max-height: calc(100% - 120px);
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: auto;
+}
+
+.card--abrir {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg-card-header);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  border-bottom: 1px solid #454c56;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.card__titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card__nombre { font-size: 15px; font-weight: 700; }
+
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #101418;
+}
+.badge.componente { background: var(--color-componente); }
+.badge.operacion { background: var(--color-operacion); }
+.badge.proceso { background: var(--color-proceso); }
+.badge.limitacion { background: var(--color-limitacion); }
+.badge.evolucion { background: var(--color-evolucion); }
+
+.card__cerrar {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 15px;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.card__cerrar:hover { color: #fff; background: rgba(255, 255, 255, 0.12); }
+
+.card__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 10px 0;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #3a4149;
+}
+
+.card__tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  border-radius: 8px 8px 0 0;
+  font-size: 11.5px;
+  padding: 5px 8px;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.card__tab:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.06); }
+.card__tab--active {
+  color: var(--accent);
+  border-color: #3a4149;
+  border-bottom-color: var(--bg-card);
+  background: var(--bg-card);
+  font-weight: 600;
+}
+
+.card__body { padding: 10px 12px; }
+
+.card__visual {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.card__desc { color: var(--text-primary); line-height: 1.5; font-size: 13px; }
+.card__ctx { color: var(--text-secondary); font-size: 11px; font-style: italic; margin-bottom: 6px; }
+.card__ref { color: var(--text-secondary); font-size: 11px; margin-top: 8px; }
+
+.formula {
+  background: #262b33;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  overflow-x: auto;
+  min-height: 24px;
+}
+
+/* Fallback cuando KaTeX no está disponible */
+.formula--fallback {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #d7e3f0;
+  white-space: pre-wrap;
+}
+
+.codigo {
+  background: #22262d;
+  border: 1px solid #343a43;
+  border-radius: 8px;
+  padding: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 6px 0;
+}
+
+.nota h1, .nota h2, .nota h3 { margin: 8px 0 4px; color: var(--accent); font-size: 14px; }
+.nota p { margin: 4px 0; line-height: 1.45; }
+.nota li { margin-left: 16px; }
+.nota blockquote {
+  margin: 6px 0;
+  padding: 6px 10px;
+  border-left: 3px solid var(--accent);
+  background: #262b33;
+  border-radius: 6px;
+  color: var(--text-secondary);
+}
+.nota__code {
+  background: #1e2229;
+  border-radius: 6px;
+  padding: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+.ejercicio {
+  background: #2b3139;
+  border: 1px dashed var(--color-operacion);
+  border-radius: 8px;
+  padding: 9px 10px;
+  margin: 6px 0;
+}
+.ejercicio__titulo { font-weight: 700; color: var(--color-operacion); font-size: 13px; margin-bottom: 4px; }
+
+/* Preguntas de la actividad (persistencia vía API REST) */
+.preguntas { margin-top: 8px; border-top: 1px solid #3a4149; padding-top: 8px; }
+.preguntas__titulo { font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+.pregunta { margin-bottom: 10px; }
+.pregunta__cab { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+.pregunta__fuente { font-size: 10.5px; color: var(--text-secondary); }
+.pregunta__estado { font-size: 13px; color: #9fe8c0; }
+.pregunta__texto { font-size: 12.5px; line-height: 1.4; margin-bottom: 4px; }
+.pregunta__resp {
+  width: 100%;
+  background: #22262d;
+  border: 1px solid #3a4149;
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 8px;
+  font-family: inherit;
+  font-size: 12.5px;
+  resize: vertical;
+  min-height: 48px;
+}
+.pregunta__resp:focus { outline: none; border-color: var(--accent); }
+
+/* Enlaces (backlinks) */
+.card__links {
+  padding: 8px 12px 12px;
+  border-top: 1px solid #3a4149;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.card__links-lab { font-size: 11px; color: var(--text-secondary); }
+
+.chip {
+  background: #262b33;
+  color: var(--accent);
+  border: 1px solid #3a4149;
+  border-radius: 999px;
+  font-size: 11.5px;
+  padding: 4px 10px;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.chip:hover { background: rgba(97, 218, 251, 0.15); transform: translateY(-1px); }
+
+/* ------------------------------------------------------------
+   Barra inferior de progreso del sendero
+   ------------------------------------------------------------ */
+.trail-progress {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #23272e;
+  border: 1px solid #3a4149;
+  border-top: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 8px 12px;
+  box-shadow: var(--shadow-card);
+  max-width: min(720px, calc(100% - 24px));
+}
+
+.trail-progress__info {
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+}
+.trail-progress__step { font-size: 12px; font-weight: 700; }
+#trail-pos { font-size: 10.5px; color: var(--text-secondary); }
+
+.trail-progress__track {
+  width: 220px;
+  height: 6px;
+  background: #3a4149;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.trail-progress__fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width var(--transition-normal);
+}
+
+.trail-progress__btn {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.trail-progress__btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); }
+.trail-progress__btn:disabled { opacity: 0.3; cursor: default; }
+
+/* ------------------------------------------------------------
+   Controles de zoom (esquina inferior derecha)
+   ------------------------------------------------------------ */
+.zoom-controls {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.zoom-controls__btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #23272e;
+  color: var(--text-primary);
+  border: 1px solid #3a4149;
+  font-size: 17px;
+  box-shadow: var(--shadow-card);
+  transition: background var(--transition-fast);
+}
+.zoom-controls__btn:hover { background: #39404a; }
+
+/* ------------------------------------------------------------
+   Menú de senderos
+   ------------------------------------------------------------ */
+.menu-trails {
+  position: absolute;
+  top: 46px;
+  right: 14px;
+  z-index: 50;
+  width: 300px;
+  max-height: calc(100% - 90px);
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid #3a4149;
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.menu-trail {
+  text-align: left;
+  background: #262b33;
+  border: 1px solid #3a4149;
+  border-radius: 9px;
+  color: var(--text-primary);
+  padding: 8px 10px;
+  transition: background var(--transition-fast);
+}
+.menu-trail:hover { background: #2f363f; }
+.menu-trail small { color: var(--text-secondary); }
+
+/* ------------------------------------------------------------
+   Tooltip (hover en nodo)
+   ------------------------------------------------------------ */
+.tooltip {
+  position: fixed;
+  z-index: 60;
+  pointer-events: none;
+  background: #23272e;
+  border: 1px solid #3a4149;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  max-width: 240px;
+  box-shadow: var(--shadow-card);
+}
+.tooltip span { color: var(--text-secondary); font-size: 11px; }
+
+/* ------------------------------------------------------------
+   Responsivo (tablets / pantallas pequeñas)
+   ------------------------------------------------------------ */
+@media (max-width: 900px) {
+  .toolbar__subtitulo { display: none; }
+  .toolbar__rayosx { order: 3; width: 100%; justify-content: flex-start; }
+  .card { width: min(320px, calc(100vw - 24px)); }
+  .trail-progress { max-width: calc(100% - 24px); }
+  .trail-progress__track { width: 90px; }
+  .menu-trails { width: min(300px, calc(100vw - 28px)); }
+}
+
+@media (max-width: 600px) {
+  .toolbar { gap: 8px; padding: 6px 10px; }
+  .toolbar__titulo { font-size: 14px; }
+  .btn { font-size: 11px; padding: 5px 8px; }
+  .zoom-controls { right: 10px; bottom: 10px; }
+  .trail-progress__track { display: none; }
+}
+
+.ejercicio__datos { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.ejercicio__sol { font-size: 12.5px; color: #9fe8c0; line-height: 1.45; }
+
