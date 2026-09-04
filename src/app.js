@@ -267,6 +267,90 @@ function loadAnswer(conceptoId) {
   return fila ? fila.respuesta : '';
 }
 
+/**
+ * Carga y muestra el historial de la respuesta de un concepto.
+ * Construye el mini-panel con las versiones y el botón de restaurar.
+ */
+async function cargarHistorial(conceptoId) {
+  const fila = respuestas.get(conceptoId);
+  const panel = $('hist-panel-' + conceptoId);
+  if (!panel) return;
+  const boton = $('hist-btn-' + conceptoId);
+
+  // Pedir el id de la respuesta desde la cola que aún no se ha guardado
+  if (!fila || !fila.id) {
+    panel.textContent = 'Aún no hay historial: guarda la respuesta primero.';
+    panel.classList.remove('hist-panel--abierto');
+    return;
+  }
+
+  try {
+    const r = await fetch('/api/respuestas/' + fila.id + '/historial');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const datos = await r.json();
+    const historial = datos.historial || [];
+
+    if (!historial.length) {
+      panel.textContent = 'Sin cambios registrados todavía.';
+      panel.classList.remove('hist-panel--abierto');
+      return;
+    }
+
+    panel.innerHTML = historial.map((v) => {
+      const fecha = new Date(v.cambiado_en).toLocaleString();
+      const previa = (v.respuesta_nueva || '').replace(/\n/g, ' ').slice(0, 60);
+      return '<div class="hist-item">'
+        + '<div class="hist-item__cab">'
+        + '<span><strong>v' + v.version + '</strong> · ' + fecha + '</span>'
+        + '<button class="hist-restaurar chip" data-version="' + v.version + '">Restaurar</button>'
+        + '</div>'
+        + '<div class="hist-item__vista">' + esc(previa || '(vacío)') + '</div>'
+        + '</div>';
+    }).join('');
+
+    panel.querySelectorAll('.hist-restaurar').forEach((btn) => {
+      btn.addEventListener('click', () =>
+        restaurarVersion(conceptoId, parseInt(btn.dataset.version, 10)));
+    });
+    panel.classList.add('hist-panel--abierto');
+  } catch (e) {
+    panel.textContent = 'No se pudo cargar el historial (API no disponible).';
+  }
+}
+
+/**
+ * Restaura una versión concreta de la respuesta de un concepto.
+ * Al tener éxito, actualiza el textarea y el estado visual.
+ */
+async function restaurarVersion(conceptoId, version) {
+  const fila = respuestas.get(conceptoId);
+  if (!fila || !fila.id) return;
+
+  try {
+    const r = await fetch('/api/respuestas/' + fila.id + '/restaurar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ version }),
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const registro = await r.json();
+
+    respuestas.set(conceptoId, { id: registro.id, respuesta: registro.respuesta });
+
+    const campo = $('resp-' + conceptoId);
+    if (campo) {
+      campo.value = registro.respuesta;
+      const estado = campo.closest('.preguntas').querySelector('.pregunta__estado');
+      if (estado) estado.textContent = registro.respuesta.trim() ? '✓' : '○';
+    }
+    marcarRespondidos();
+    cargarHistorial(conceptoId); // refresca el panel para mostrar la nueva versión
+    avisar('Versión v' + version + ' restaurada de ' + conceptoId + '.');
+  } catch (e) {
+    avisar('No se pudo restaurar la versión (API no disponible).');
+  }
+}
+
 /** Programa un guardado diferido para no llamar a la API en cada tecla. */
 function guardarConRetraso(conceptoId, texto) {
   clearTimeout(temporizadores.get(conceptoId));
@@ -522,6 +606,10 @@ function bloquePreguntas(concepto) {
     + '<textarea class="pregunta__resp" id="resp-' + esc(concepto.id) + '" '
     + 'aria-label="Tu respuesta para ' + esc(concepto.nombre) + '" '
     + 'placeholder="Escribe tu respuesta…">' + esc(guardada) + '</textarea>'
+    + '<button class="chip hist-btn" id="hist-btn-' + esc(concepto.id) + '" '
+    + 'aria-expanded="false" aria-label="Ver historial de esta respuesta">'
+    + '⏱ Historial</button>'
+    + '<div class="hist-panel" id="hist-panel-' + esc(concepto.id) + '" hidden></div>'
     + '</div>';
 }
 
@@ -575,6 +663,18 @@ function conectarCamposRespuesta(contenedor, concepto) {
     clearTimeout(temporizadores.get(concepto.id));
     saveAnswer(concepto.id, campo.value);
   });
+
+  // Botón de historial: alterna el panel y lo carga la primera vez
+  const btnHist = contenedor.querySelector('.hist-btn');
+  if (btnHist) {
+    btnHist.addEventListener('click', () => {
+      const panel = $('hist-panel-' + concepto.id);
+      const abierto = !panel.hidden;
+      panel.hidden = abierto;                 // alternar
+      btnHist.setAttribute('aria-expanded', abierto ? 'false' : 'true');
+      if (!abierto) cargarHistorial(concepto.id);
+    });
+  }
 }
 
 
@@ -1077,6 +1177,8 @@ window.Atlas = {
   prevStep: prevStep,
   saveAnswer: saveAnswer,
   loadAnswer: loadAnswer,
+  cargarHistorial: cargarHistorial,
+  restaurarVersion: restaurarVersion,
   exportAnswers: exportAnswers,
 };
 

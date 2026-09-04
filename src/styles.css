@@ -376,6 +376,44 @@ textarea:focus-visible,
 }
 .pregunta__resp:focus { outline: none; border-color: var(--accent); }
 
+/* Botón y panel de historial de respuestas */
+.hist-btn { margin-top: 8px; align-self: flex-start; }
+
+.hist-panel {
+  margin-top: 8px;
+  border-top: 1px solid #3a4149;
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+/* El atributo [hidden] del HTML debe poder ocultar el panel a pesar de
+   `display: flex`; un atributo presente vence a una clase por el `!important`
+   del selector global `[hidden] { display: none !important }` definido arriba. */
+
+.hist-item {
+  background: #262b33;
+  border: 1px solid #343a43;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.hist-item__cab {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.hist-item__cab strong { color: var(--accent); }
+.hist-item__vista {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-primary);
+  font-style: italic;
+}
+.hist-restaurar { font-size: 10.5px; padding: 2px 8px; }
+
 /* Enlaces (backlinks) */
 .card__links {
   padding: 8px 12px 12px;

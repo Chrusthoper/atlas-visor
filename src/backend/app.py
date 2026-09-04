@@ -170,6 +170,38 @@ def api_eliminar_respuesta(respuesta_id):
     return jsonify({"error": "Respuesta no encontrada"}), 404
 
 
+@app.get("/api/respuestas/<int:respuesta_id>/historial")
+def api_historial_respuesta(respuesta_id):
+    """
+    Historial de cambios de una respuesta.
+
+    Devuelve 404 si la respuesta no existe; 200 con la lista (posiblemente
+    vacía) si existe pero aún no tiene cambios registrados.
+    """
+    if modelos.obtener_por_id(respuesta_id) is None:
+        return jsonify({"error": "Respuesta no encontrada"}), 404
+    return jsonify({"historial": modelos.historial_de_respuesta(respuesta_id)}), 200
+
+
+@app.post("/api/respuestas/<int:respuesta_id>/restaurar")
+def api_restaurar_respuesta(respuesta_id):
+    """
+    Restaura una versión anterior de una respuesta.
+
+    Cuerpo: { "version": n }
+    404 si la respuesta o la versión no existen; 400 si falta/erróneo version.
+    """
+    cuerpo = request.get_json(silent=True)
+    version = (cuerpo or {}).get("version") if isinstance(cuerpo, dict) else None
+    if not isinstance(version, int) or isinstance(version, bool):
+        return jsonify({"error": "El campo 'version' debe ser un entero"}), 400
+
+    registro = modelos.restaurar_respuesta(respuesta_id, version)
+    if registro is None:
+        return jsonify({"error": "Respuesta o versión no encontrada"}), 404
+    return jsonify(registro), 200
+
+
 # ------------------------------------------------------------------
 # Estáticos: sirve build/ en la raíz
 # ------------------------------------------------------------------
