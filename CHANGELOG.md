@@ -4,6 +4,31 @@ Todas las versiones notables de este proyecto. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) y versionado
 [SemVer](https://semver.org/lang/es/).
 
+## [2.3.0] — 2026-09-04
+
+### Añadido
+- Snapshot de integridad del contenido: cada build guarda un `sha256` del
+  contenido normalizado en `contenido_versiones`.
+- Endpoint `GET /api/versiones` para consultar los snapshots.
+
+## [2.2.0] — 2026-09-04
+
+### Añadido
+- Notas personales del usuario, editables por concepto y con historial.
+- Tablas `notas` y `notas_historial` en SQLite.
+- Endpoints `GET/POST /api/notas`, `GET /api/notas/<id>/historial` y
+  `POST /api/notas/<id>/restaurar`.
+- Campo "📓 Mi nota" en la tarjeta con su panel de historial.
+
+## [2.1.0] — 2026-09-04
+
+### Añadido
+- Historial de respuestas del usuario (versiones + restaurar).
+- Tabla `respuestas_historial` en SQLite.
+- Endpoints `GET /api/respuestas/<id>/historial` y
+  `POST /api/respuestas/<id>/restaurar`.
+- Botón "⏱ Historial" en la tarjeta con panel de versiones.
+
 ## [2.0.0] — 2026-09-03
 
 ### Añadido
