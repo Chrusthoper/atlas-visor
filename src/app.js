@@ -266,6 +266,102 @@ function loadAnswer(conceptoId) {
   const fila = respuestas.get(conceptoId);
   return fila ? fila.respuesta : '';
 }
+/** Carga el contenido de la nota personal de un concepto. */
+async function cargarNota(conceptoId) {
+  try {
+    const r = await fetch('/api/notas/' + conceptoId);
+    if (!r.ok) return ''; // 404 = sin nota todavía
+    const nota = await r.json();
+    return nota.contenido || '';
+  } catch (e) {
+    return '';
+  }
+}
+
+/** Guarda la nota personal de un concepto (upsert vía API). */
+async function guardarNota(conceptoId, contenido) {
+  try {
+    const r = await fetch('/api/notas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ concepto_id: conceptoId, contenido }),
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch (e) {
+    avisar('⚠ No se pudo guardar la nota en el servidor.');
+    return null;
+  }
+}
+
+/** Carga el historial de una nota y lo muestra en el panel. */
+async function cargarHistorialNota(conceptoId, notaId) {
+  const panel = $('hist-nota-panel-' + conceptoId);
+  if (!panel) return;
+  if (!notaId) {
+    panel.textContent = 'Aún no hay historial: guarda la nota primero.';
+    return;
+  }
+  try {
+    const r = await fetch('/api/notas/' + notaId + '/historial');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const datos = await r.json();
+    const historial = datos.historial || [];
+    if (!historial.length) {
+      panel.textContent = 'Sin cambios registrados todavía.';
+      return;
+    }
+    panel.innerHTML = historial.map((v) => {
+      const fecha = new Date(v.cambiado_en).toLocaleString();
+      const previa = (v.contenido_nuevo || '').replace(/\n/g, ' ').slice(0, 60);
+      return '<div class="hist-item">'
+        + '<div class="hist-item__cab">'
+        + '<span><strong>v' + v.version + '</strong> · ' + fecha + '</span>'
+        + '<button class="hist-restaurar chip" data-version="' + v.version + '">Restaurar</button>'
+        + '</div>'
+        + '<div class="hist-item__vista">' + esc(previa || '(vacío)') + '</div>'
+        + '</div>';
+    }).join('');
+    panel.querySelectorAll('.hist-restaurar').forEach((btn) => {
+      btn.addEventListener('click', () =>
+        restaurarVersionNota(conceptoId, notaId, parseInt(btn.dataset.version, 10)));
+    });
+  } catch (e) {
+    panel.textContent = 'No se pudo cargar el historial de la nota.';
+  }
+}
+
+/** Restaura una versión de la nota de un concepto. */
+async function restaurarVersionNota(conceptoId, notaId, version) {
+  try {
+    const r = await fetch('/api/notas/' + notaId + '/restaurar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ version }),
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const nota = await r.json();
+    const campo = $('nota-' + conceptoId);
+    if (campo) campo.value = nota.contenido;
+    cargarHistorialNota(conceptoId, notaId);
+    avisar('Versión v' + version + ' de la nota restaurada.');
+  } catch (e) {
+    avisar('No se pudo restaurar la versión de la nota.');
+  }
+}
+
+/** HTML del bloque "Mi nota" editable con su historial. */
+function bloqueNotaPersonal(conceptoId) {
+  return '<div class="preguntas nota-personal">'
+    + '<div class="preguntas__titulo">📓 Mi nota</div>'
+    + '<textarea class="pregunta__resp nota-personal__resp" id="nota-' + esc(conceptoId) + '" '
+    + 'aria-label="Tu nota personal para ' + esc(conceptoId) + '" '
+    + 'placeholder="Escribe tu nota…"></textarea>'
+    + '<button class="chip hist-btn" id="hist-nota-btn-' + esc(conceptoId) + '" '
+    + 'aria-expanded="false" aria-label="Ver historial de la nota">⏱ Historial de nota</button>'
+    + '<div class="hist-panel" id="hist-nota-panel-' + esc(conceptoId) + '" hidden></div>'
+    + '</div>';
+}
 
 /**
  * Carga y muestra el historial de la respuesta de un concepto.
@@ -640,13 +736,15 @@ function setCardTab(capaId) {
   const cuerpo = card.querySelector('.card__body');
   cuerpo.innerHTML = cuerpoDeCapa(concepto, capaId)
     + bloqueEjercicio(concepto)
-    + bloquePreguntas(concepto);
+    + bloquePreguntas(concepto)
+    + bloqueNotaPersonal(concepto.id);
 
   // KaTeX sobre el hueco reservado
   const hueco = cuerpo.querySelector('.formula[data-formula]');
   if (hueco) renderFormula(hueco, hueco.dataset.formula);
 
   conectarCamposRespuesta(cuerpo, concepto);
+  conectarCamposNota(cuerpo, concepto.id);
 }
 
 /** Enlaza el textarea de respuesta con el guardado diferido. */
@@ -676,6 +774,48 @@ function conectarCamposRespuesta(contenedor, concepto) {
     });
   }
 }
+
+/** Enlaza el campo de nota personal: precarga, guardado y su historial. */
+function conectarCamposNota(contenedor, conceptoId) {
+  const campo = contenedor.querySelector('.nota-personal__resp');
+  if (!campo) return;
+
+  // Precarga el contenido existente de la nota
+  cargarNota(conceptoId).then((contenido) => {
+    if (campo && document.body.contains(campo)) campo.value = contenido || '';
+  });
+
+  // Guardado diferido al escribir
+  campo.addEventListener('input', () => {
+    clearTimeout(temporizadores.get('nota-' + conceptoId));
+    temporizadores.set('nota-' + conceptoId, setTimeout(() => {
+      guardarNota(conceptoId, campo.value);
+    }, 700));
+  });
+  // Guardado inmediato al salir
+  campo.addEventListener('blur', () => {
+    clearTimeout(temporizadores.get('nota-' + conceptoId));
+    guardarNota(conceptoId, campo.value);
+  });
+
+  // Toggle del historial de la nota
+  const btn = contenedor.querySelector('.nota-personal .hist-btn');
+  if (btn) {
+    btn.addEventListener('click', async () => {
+      const panel = $('hist-nota-panel-' + conceptoId);
+      const abierto = !panel.hidden;
+      panel.hidden = abierto;
+      btn.setAttribute('aria-expanded', abierto ? 'false' : 'true');
+      if (!abierto) {
+        // Necesitamos el nota_id actual (puede que aún no exista si no se guardó)
+        panel.textContent = 'Cargando…';
+        const nota = await guardarNota(conceptoId, campo.value); // upsert asegura id
+        if (nota && nota.nota_id) cargarHistorialNota(conceptoId, nota.nota_id);
+      }
+    });
+  }
+}
+
 
 
 /**
@@ -1179,6 +1319,10 @@ window.Atlas = {
   loadAnswer: loadAnswer,
   cargarHistorial: cargarHistorial,
   restaurarVersion: restaurarVersion,
+  cargarNota: cargarNota,
+  guardarNota: guardarNota,
+  cargarHistorialNota: cargarHistorialNota,
+  restaurarVersionNota: restaurarVersionNota,
   exportAnswers: exportAnswers,
 };
 

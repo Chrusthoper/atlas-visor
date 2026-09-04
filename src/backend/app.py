@@ -203,6 +203,64 @@ def api_restaurar_respuesta(respuesta_id):
 
 
 # ------------------------------------------------------------------
+# API: notas personales del usuario
+# ------------------------------------------------------------------
+@app.get("/api/notas")
+def api_listar_notas():
+    """Lista todas las notas personales."""
+    return jsonify({"notas": modelos.listar_notas()}), 200
+
+
+@app.get("/api/notas/<concepto_id>")
+def api_obtener_nota(concepto_id):
+    """Devuelve la nota de un concepto; 404 si no existe."""
+    nota = modelos.obtener_nota_por_concepto(concepto_id)
+    if nota is None:
+        return jsonify({"error": "Nota no encontrada: " + concepto_id}), 404
+    return jsonify(nota), 200
+
+
+@app.post("/api/notas")
+def api_guardar_nota():
+    """Crea o actualiza la nota de un concepto (upsert). 201/200."""
+    cuerpo = request.get_json(silent=True)
+    if not isinstance(cuerpo, dict):
+        return jsonify({"error": "Se esperaba un cuerpo JSON"}), 400
+    concepto_id = cuerpo.get("concepto_id")
+    if not concepto_id or not isinstance(concepto_id, str):
+        return jsonify({"error": "Falta el campo 'concepto_id'"}), 400
+    if concepto_id not in ids_de_conceptos():
+        return jsonify({"error": "El concepto '" + concepto_id + "' no existe"}), 400
+    contenido = cuerpo.get("contenido", "")
+    if not isinstance(contenido, str):
+        return jsonify({"error": "El campo 'contenido' debe ser texto"}), 400
+
+    nota, fue_creado = modelos.guardar_nota(concepto_id, contenido)
+    return jsonify(nota), (201 if fue_creado else 200)
+
+
+@app.get("/api/notas/<int:nota_id>/historial")
+def api_historial_nota(nota_id):
+    """Historial de cambios de una nota; 404 si la nota no existe."""
+    if modelos.obtener_nota(nota_id) is None:
+        return jsonify({"error": "Nota no encontrada"}), 404
+    return jsonify({"historial": modelos.historial_de_nota(nota_id)}), 200
+
+
+@app.post("/api/notas/<int:nota_id>/restaurar")
+def api_restaurar_nota(nota_id):
+    """Restaura una versión de una nota. 404/400 según el fallo."""
+    cuerpo = request.get_json(silent=True)
+    version = (cuerpo or {}).get("version") if isinstance(cuerpo, dict) else None
+    if not isinstance(version, int) or isinstance(version, bool):
+        return jsonify({"error": "El campo 'version' debe ser un entero"}), 400
+    nota = modelos.restaurar_nota(nota_id, version)
+    if nota is None:
+        return jsonify({"error": "Nota o versión no encontrada"}), 404
+    return jsonify(nota), 200
+
+
+# ------------------------------------------------------------------
 # Estáticos: sirve build/ en la raíz
 # ------------------------------------------------------------------
 @app.get("/")

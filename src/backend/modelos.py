@@ -51,6 +51,26 @@ CREATE TABLE IF NOT EXISTS respuestas_historial (
 );
 CREATE INDEX IF NOT EXISTS idx_historial_respuesta
     ON respuestas_historial (respuesta_id);
+
+CREATE TABLE IF NOT EXISTS notas (
+    nota_id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    concepto_id    TEXT NOT NULL UNIQUE,
+    contenido      TEXT NOT NULL DEFAULT '',
+    creado_en      TIMESTAMP NOT NULL,
+    actualizado_en TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS notas_historial (
+    historial_id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    nota_id          INTEGER NOT NULL REFERENCES notas(nota_id) ON DELETE CASCADE,
+    concepto_id      TEXT NOT NULL,
+    version          INTEGER NOT NULL,
+    contenido_anterior TEXT NOT NULL DEFAULT '',
+    contenido_nuevo    TEXT NOT NULL DEFAULT '',
+    cambiado_en      TIMESTAMP NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_historial_nota
+    ON notas_historial (nota_id);
 """
 
 
@@ -195,6 +215,136 @@ def eliminar_respuesta(respuesta_id):
     with conectar() as con:
         cur = con.execute("DELETE FROM respuestas WHERE id = ?", (respuesta_id,))
         return cur.rowcount > 0
+
+
+# ------------------------------------------------------------------
+# Notas personales del usuario (+ historial)
+# ------------------------------------------------------------------
+def _nota_a_dict(fila):
+    if fila is None:
+        return None
+    return {
+        "nota_id": fila["nota_id"],
+        "concepto_id": fila["concepto_id"],
+        "contenido": fila["contenido"],
+        "creado_en": fila["creado_en"],
+        "actualizado_en": fila["actualizado_en"],
+    }
+
+
+def _registrar_historial_nota(con, nota_id, concepto_id, contenido_anterior, contenido_nuevo, momento):
+    fila = con.execute(
+        "SELECT COALESCE(MAX(version), 0) AS ultima FROM notas_historial WHERE nota_id = ?",
+        (nota_id,),
+    ).fetchone()
+    siguiente = int(fila["ultima"]) + 1
+    con.execute(
+        "INSERT INTO notas_historial "
+        "(nota_id, concepto_id, version, contenido_anterior, contenido_nuevo, cambiado_en) "
+        "VALUES (?, ?, ?, ?, ?, ?)",
+        (nota_id, concepto_id, siguiente, contenido_anterior, contenido_nuevo, momento),
+    )
+
+
+def listar_notas():
+    """Devuelve todas las notas personales."""
+    with conectar() as con:
+        filas = con.execute("SELECT * FROM notas ORDER BY concepto_id").fetchall()
+    return [_nota_a_dict(f) for f in filas]
+
+
+def obtener_nota_por_concepto(concepto_id):
+    """Devuelve la nota de un concepto, o None si no existe."""
+    with conectar() as con:
+        fila = con.execute(
+            "SELECT * FROM notas WHERE concepto_id = ?", (concepto_id,)
+        ).fetchone()
+    return _nota_a_dict(fila)
+
+
+def obtener_nota(nota_id):
+    with conectar() as con:
+        fila = con.execute("SELECT * FROM notas WHERE nota_id = ?", (nota_id,)).fetchone()
+    return _nota_a_dict(fila)
+
+
+def guardar_nota(concepto_id, contenido):
+    """Crea o actualiza la nota personal de un concepto (upsert)."""
+    momento = ahora()
+    with conectar() as con:
+        existente = con.execute(
+            "SELECT nota_id, contenido FROM notas WHERE concepto_id = ?", (concepto_id,)
+        ).fetchone()
+        if existente is None:
+            cur = con.execute(
+                "INSERT INTO notas (concepto_id, contenido, creado_en, actualizado_en) "
+                "VALUES (?, ?, ?, ?)",
+                (concepto_id, contenido, momento, momento),
+            )
+            nuevo_id = cur.lastrowid
+            _registrar_historial_nota(con, nuevo_id, concepto_id, "", contenido, momento)
+            fue_creado = True
+        else:
+            nuevo_id = existente["nota_id"]
+            if existente["contenido"] != contenido:
+                con.execute(
+                    "UPDATE notas SET contenido = ?, actualizado_en = ? WHERE nota_id = ?",
+                    (contenido, momento, nuevo_id),
+                )
+                _registrar_historial_nota(
+                    con, nuevo_id, concepto_id, existente["contenido"], contenido, momento
+                )
+            fue_creado = False
+    return obtener_nota(nuevo_id), fue_creado
+
+
+def historial_de_nota(nota_id):
+    """Devuelve el historial de una nota, más reciente primero."""
+    with conectar() as con:
+        filas = con.execute(
+            "SELECT historial_id, nota_id, concepto_id, version, "
+            "contenido_anterior, contenido_nuevo, cambiado_en "
+            "FROM notas_historial WHERE nota_id = ? ORDER BY version DESC",
+            (nota_id,),
+        ).fetchall()
+    return [
+        {
+            "historial_id": f["historial_id"],
+            "nota_id": f["nota_id"],
+            "concepto_id": f["concepto_id"],
+            "version": f["version"],
+            "contenido_anterior": f["contenido_anterior"],
+            "contenido_nuevo": f["contenido_nuevo"],
+            "cambiado_en": f["cambiado_en"],
+        }
+        for f in filas
+    ]
+
+
+def restaurar_nota(nota_id, version):
+    """Restaura una versión de una nota; devuelve la nota o None."""
+    with conectar() as con:
+        actual = con.execute(
+            "SELECT nota_id, concepto_id, contenido FROM notas WHERE nota_id = ?", (nota_id,)
+        ).fetchone()
+        if actual is None:
+            return None
+        version_fila = con.execute(
+            "SELECT contenido_nuevo FROM notas_historial WHERE nota_id = ? AND version = ?",
+            (nota_id, version),
+        ).fetchone()
+        if version_fila is None:
+            return None
+        contenido_restaurado = version_fila["contenido_nuevo"]
+        if actual["contenido"] != contenido_restaurado:
+            con.execute(
+                "UPDATE notas SET contenido = ?, actualizado_en = ? WHERE nota_id = ?",
+                (contenido_restaurado, ahora(), nota_id),
+            )
+            _registrar_historial_nota(
+                con, nota_id, actual["concepto_id"], actual["contenido"], contenido_restaurado, ahora()
+            )
+    return obtener_nota(nota_id)
 
 
 # ------------------------------------------------------------------
